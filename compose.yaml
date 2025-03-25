@@ -1,0 +1,20 @@
+﻿services:
+  postgres.db:
+    image: postgres:latest
+    container_name: postgresHackathon.db
+    environment:
+      POSTGRES_USER: hackathon
+      POSTGRES_PASSWORD: healthdb
+      POSTGRES_DB: healthdb
+    networks:
+      - mynetwork
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+networks:
+  mynetwork:
+    driver: bridge

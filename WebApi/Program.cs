@@ -1,4 +1,11 @@
+using Infra;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Banco de dados
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection")));
 
 // Add services to the container.
 
