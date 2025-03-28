@@ -11,13 +11,13 @@ public class AppointmentsConfig : IEntityTypeConfiguration<Appointment>
         //Relacao 1 para N entre Medico e Consulta
         builder.HasOne(a => a.Doctor)
             .WithMany(d => d.Appointments)
-            .HasForeignKey(a => a.Crm)
+            .HasForeignKey(a => a.DoctorId)
             .OnDelete(DeleteBehavior.Restrict);
         
         //Relacao 1 para N entre Paciente e Consulta
         builder.HasOne(a => a.Patient)
             .WithMany(d => d.Appointments)
-            .HasForeignKey(a => a.Cpf)
+            .HasForeignKey(a => a.PatientId)
             .OnDelete(DeleteBehavior.Restrict);
     }
     
