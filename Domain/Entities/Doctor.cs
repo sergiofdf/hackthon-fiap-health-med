@@ -5,7 +5,6 @@ namespace Domain.Entities;
 
 public class Doctor : User
 {
-    [Key]
     public string Crm { get; set; }
     public string Specialty { get; set; }
     
@@ -13,8 +12,7 @@ public class Doctor : User
     
     public List<Appointment> Appointments { get; set; }
 
-    public Doctor()
+    public Doctor() : base(EProfile.Doctor)
     {
-        Profile = EProfile.Doctor;
     }
 }

@@ -9,12 +9,10 @@ public class DoctorsConfig : IEntityTypeConfiguration<Doctor>
     public void Configure(EntityTypeBuilder<Doctor> builder)
     {
         builder.ToTable("Doctors");
-        builder.HasKey(d => d.Crm);
-        builder.Property(d => d.Profile)
-            .HasConversion<int>();
+        builder.HasIndex(d => d.Crm).IsUnique();
+
         builder.HasOne(d => d.Agenda)
             .WithOne(a => a.Doctor)
-            .HasForeignKey<Agenda>(a => a.Crm);
+            .HasForeignKey<Agenda>(a => a.Id);
     }
-    
 }

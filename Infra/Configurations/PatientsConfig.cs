@@ -9,9 +9,7 @@ public class PatientsConfig : IEntityTypeConfiguration<Patient>
     public void Configure(EntityTypeBuilder<Patient> builder)
     {
         builder.ToTable("Patients");
-        builder.HasKey(p => p.Cpf);
-        builder.Property(d => d.Profile)
-            .HasConversion<int>();
+        builder.HasIndex(p => p.Cpf).IsUnique();
     }
     
 }
