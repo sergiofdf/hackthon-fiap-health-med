@@ -2,6 +2,7 @@ using Domain.Shared;
 using FluentValidation;
 using System.Text.RegularExpressions;
 using Application.Models;
+using Domain.Enums;
 
 namespace WebApi.Validation;
 
@@ -26,6 +27,10 @@ public class NewUserValidator : AbstractValidator<UserDto>
             .MinimumLength(6).WithMessage("A senha deve ter pelo menos 6 caracteres.")
             .Must(ContainDigit).WithMessage("A senha deve conter pelo menos um numero.")
             .Must(ContainSpecialCharacter).WithMessage("A senha deve conter pelo menos um caractere especial (@, #, $, etc).");
+
+        RuleFor(x => x.Profile)
+            .NotEmpty().WithMessage("Campo obrigatorio.")
+            .IsInEnum().WithMessage("Campo de profile deve ser 1 para admin, 2 para médico ou 3 para paciente.");
     }
 
     public void IsValid(UserDto user)
