@@ -17,7 +17,7 @@ namespace Infra.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.14")
+                .HasAnnotation("ProductVersion", "8.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -28,10 +28,16 @@ namespace Infra.Migrations
                         .HasColumnType("text");
 
                     b.Property<bool>("Available")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DoctorId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("timestamp with time zone");
@@ -44,7 +50,9 @@ namespace Infra.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Agendas");
+                    b.HasIndex("DoctorId");
+
+                    b.ToTable("Agendas", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Appointment", b =>
@@ -160,8 +168,8 @@ namespace Infra.Migrations
             modelBuilder.Entity("Domain.Entities.Agenda", b =>
                 {
                     b.HasOne("Domain.Entities.Doctor", "Doctor")
-                        .WithOne("Agenda")
-                        .HasForeignKey("Domain.Entities.Agenda", "Id")
+                        .WithMany("Agendas")
+                        .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -207,8 +215,7 @@ namespace Infra.Migrations
 
             modelBuilder.Entity("Domain.Entities.Doctor", b =>
                 {
-                    b.Navigation("Agenda")
-                        .IsRequired();
+                    b.Navigation("Agendas");
 
                     b.Navigation("Appointments");
                 });

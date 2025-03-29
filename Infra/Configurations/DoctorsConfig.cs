@@ -10,9 +10,5 @@ public class DoctorsConfig : IEntityTypeConfiguration<Doctor>
     {
         builder.ToTable("Doctors");
         builder.HasIndex(d => d.Crm).IsUnique();
-
-        builder.HasOne(d => d.Agenda)
-            .WithOne(a => a.Doctor)
-            .HasForeignKey<Agenda>(a => a.Id);
     }
 }
