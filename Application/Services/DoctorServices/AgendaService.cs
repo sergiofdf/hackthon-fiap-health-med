@@ -1,4 +1,5 @@
 using System.Globalization;
+using Application.Models;
 using Domain.Dto;
 using Domain.Entities;
 using Domain.Interfaces;
@@ -48,21 +49,29 @@ public class AgendaService : IAgendaService
         return res;
     }
     
-    public async Task<bool> UpdateAgenda(string agendaId, bool available, DateTime? startDateTime, DateTime? endDateTime)
+    public async Task<bool> UpdateAgenda(string agendaId, UpdateAgendaDto updateAgendaDto)
     {
         var agenda = await _agendaRepository.GetAgendaById(agendaId);
-
+        
         if (agenda == null)
         {
             NotFoundException.Throw("404", "Agenda não encontrada.");
         }
 
+        var startDateTimeUtc = updateAgendaDto.StartDateTime is not null
+            ? DateTime.SpecifyKind((DateTime) updateAgendaDto.StartDateTime, DateTimeKind.Utc)
+            : agenda!.StartTime;
+        
+        var endDateTimeUtc = updateAgendaDto.EndDateTime is not null
+            ? DateTime.SpecifyKind((DateTime) updateAgendaDto.EndDateTime, DateTimeKind.Utc)
+            : agenda!.EndTime;
+
         var newAgenda = new Agenda
         {
             Id = agendaId,
-            Available = available,
-            StartTime = startDateTime ?? agenda!.StartTime,
-            EndTime = endDateTime ?? agenda!.EndTime,
+            Available = updateAgendaDto.Available,
+            StartTime = startDateTimeUtc,
+            EndTime = endDateTimeUtc,
             DoctorId = agenda!.DoctorId
         };
         

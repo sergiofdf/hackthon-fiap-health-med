@@ -49,7 +49,8 @@ public class AgendaRepository : IAgendaRepository
                 a.Doctor.LastName,
                 a.Doctor.Email,
                 a.Doctor.Crm,
-                a.Doctor.Specialty
+                a.Doctor.Specialty,
+                a.Doctor.HourlyPrice
             ))
             .ToListAsync();
     }
@@ -59,7 +60,9 @@ public class AgendaRepository : IAgendaRepository
         var slot = await _dbContext.Agendas.FindAsync(newAgenda.Id);
         if (slot == null) return false;
         
-        _dbContext.Agendas.Update(newAgenda);
+        slot.Available = newAgenda.Available;
+        slot.StartTime = newAgenda.StartTime;
+        slot.EndTime = newAgenda.EndTime;
         await _dbContext.SaveChangesAsync();
         return true;
     }
