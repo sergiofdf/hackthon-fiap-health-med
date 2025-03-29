@@ -1,4 +1,5 @@
 using System.Globalization;
+using Domain.Dto;
 using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Shared;
@@ -69,7 +70,7 @@ public class AgendaService : IAgendaService
         
         return res;
     }
-    public async Task<List<Agenda>> GetDoctorAvailableAgendaByTime(string doctorId, DateTime startQueryDate, DateTime endQueryDate)
+    public async Task<List<DoctorAgendaDto>> GetDoctorAvailableAgendaByTime(string doctorId, DateTime startQueryDate, DateTime endQueryDate)
     {
         return await _agendaRepository.GetAvailableSlotsAsync(doctorId, startQueryDate, endQueryDate);
     }
