@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using Application.Models;
 using Domain.Entities;
 using Domain.Enums;
@@ -42,15 +43,33 @@ public class AuthService : IAuthService
                 
             DataValidationException.Throw("400", "Erro no registro de usuario", "Email duplicado", fields);
         }
-        
-        var user = new User(userDto.Profile)
+
+        User user = userDto.Profile switch
         {
-            Name = userDto.Name, 
-            LastName = userDto.LastName, 
-            Email = userDto.Email,
-            Profile = userDto.Profile,
+            EProfile.Doctor => new Doctor()
+            {
+                Name = userDto.Name,
+                LastName = userDto.LastName,
+                Email = userDto.Email,
+                Profile = userDto.Profile,
+                Crm = userDto.Crm!,
+                Specialty = userDto.Specialty!
+            },
+            EProfile.Patient => new Patient()
+            {
+                Name = userDto.Name,
+                LastName = userDto.LastName,
+                Email = userDto.Email,
+                Profile = userDto.Profile,
+                Cpf = userDto.Cpf!,
+                PhoneNumber = userDto.PhoneNumber!
+            },
+            _ => new User(userDto.Profile)
+            {
+                Name = userDto.Name, LastName = userDto.LastName, Email = userDto.Email, Profile = userDto.Profile,
+            }
         };
-        
+
         var hashedPassword = new PasswordHasher<User>()
             .HashPassword(user, userDto.Password);
         
@@ -66,20 +85,20 @@ public class AuthService : IAuthService
 
     public async Task<string?> LoginAsync(UserLoginDto loginDto)
     {
-        User? user;
-        if (!string.IsNullOrWhiteSpace(loginDto.Crm))
+        User? user = null;
+        if (IsCrm(loginDto.Login))
         {
-            user = await _userRepository.GetByCrmAsync(loginDto.Crm);
+            user = await _userRepository.GetByCrmAsync(loginDto.Login);
         } 
-        else if (!string.IsNullOrWhiteSpace(loginDto.Email))
+        else if (IsEmail(loginDto.Login))
         {
-            user = await _userRepository.GetByEmailAsync(loginDto.Email);
+            user = await _userRepository.GetByEmailAsync(loginDto.Login);
         }
-        else
+        else if (IsCpf(loginDto.Login))
         {
-            user = await _userRepository.GetByCpfAsync(loginDto.Cpf!);
+            user = await _userRepository.GetByCpfAsync(loginDto.Login);
         }
-       
+        
         if (user is null) return null;
         
         if (new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, loginDto.Password) ==
@@ -113,5 +132,23 @@ public class AuthService : IAuthService
         var token = handler.CreateToken(tokenDescriptor);
 
         return token;
+    }
+    
+    private static bool IsEmail(string input)
+    {
+        var regex = new Regex(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
+        return regex.IsMatch(input);
+    }
+
+    private static bool IsCpf(string input)
+    {
+        var regex = new Regex(@"^\d{11}$"); // Apenas 11 números consecutivos
+        return regex.IsMatch(input);
+    }
+
+    private static bool IsCrm(string input)
+    {
+        var regex = new Regex(@"^\d{4,6}-[A-Z]{2}$"); // 4 a 6 dígitos seguidos por "-UF"
+        return regex.IsMatch(input);
     }
 }
