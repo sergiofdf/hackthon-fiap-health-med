@@ -10,5 +10,9 @@ public class DoctorsConfig : IEntityTypeConfiguration<Doctor>
     {
         builder.ToTable("Doctors");
         builder.HasIndex(d => d.Crm).IsUnique();
+        builder.HasIndex(d => d.Email).IsUnique();
+        builder.Property(d => d.Specialty)
+            .HasConversion<int>();
+        builder.HasIndex(d => d.Specialty);
     }
 }

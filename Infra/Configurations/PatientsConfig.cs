@@ -10,6 +10,7 @@ public class PatientsConfig : IEntityTypeConfiguration<Patient>
     {
         builder.ToTable("Patients");
         builder.HasIndex(p => p.Cpf).IsUnique();
+        builder.HasIndex(p => p.Email).IsUnique();
     }
     
 }

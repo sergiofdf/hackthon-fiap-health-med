@@ -9,7 +9,7 @@ public record UserDto(
     string Password, 
     EProfile Profile, 
     string? Crm = null, 
-    string? Specialty = null,
+    Specialties? Specialty = null,
     string? Cpf = null,
     string? PhoneNumber = null
     );

@@ -53,7 +53,7 @@ public class AuthService : IAuthService
                 Email = userDto.Email,
                 Profile = userDto.Profile,
                 Crm = userDto.Crm!,
-                Specialty = userDto.Specialty!
+                Specialty = (Specialties)userDto.Specialty!
             },
             EProfile.Patient => new Patient()
             {

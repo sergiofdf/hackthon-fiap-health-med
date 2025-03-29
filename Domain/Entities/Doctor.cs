@@ -6,7 +6,7 @@ namespace Domain.Entities;
 public class Doctor : User
 {
     public string Crm { get; set; }
-    public string Specialty { get; set; }
+    public Specialties Specialty { get; set; }
     
     public List<Agenda> Agendas { get; set; }
     
