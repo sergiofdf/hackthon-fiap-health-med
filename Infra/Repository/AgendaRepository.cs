@@ -1,3 +1,4 @@
+using Domain.Dto;
 using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -31,13 +32,25 @@ public class AgendaRepository : IAgendaRepository
         return true;
     }
 
-    public async Task<List<Agenda>> GetAvailableSlotsAsync(string doctorId, DateTime startQueryDate,
+    public async Task<List<DoctorAgendaDto>> GetAvailableSlotsAsync(string doctorId, DateTime startQueryDate,
         DateTime endQueryDate)
     {
         return await _dbContext.Agendas
             .Where(a => a.DoctorId == doctorId && a.Available &&
                         a.StartTime >= startQueryDate && a.EndTime <= endQueryDate)
+            .OrderBy(a => a.StartTime)
             .Include(a => a.Doctor)
+            .Select(a => new DoctorAgendaDto(
+                a.Id,
+                a.Available,
+                a.StartTime,
+                a.EndTime,
+                a.Doctor.Name,
+                a.Doctor.LastName,
+                a.Doctor.Email,
+                a.Doctor.Crm,
+                a.Doctor.Specialty
+            ))
             .ToListAsync();
     }
 
