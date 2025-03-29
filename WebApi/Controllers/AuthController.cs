@@ -51,6 +51,9 @@ public class AuthController: ControllerBase
     
     /// <summary>
     /// Autentica um usuario e retorna um token JWT.
+    /// <p>O campo login pode ser um email  para médico, usuário ou paciente.</p>
+    /// <p>O campo login pode ser um CRM  para médico.</p>
+    /// <p>O campo login pode ser um CPF para paciente.</p>
     /// </summary>
     /// <param name="model">Dados do usuario para login.</param>
     /// <returns>Retorna um token JWT.</returns>
