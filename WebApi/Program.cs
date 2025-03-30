@@ -1,5 +1,6 @@
 using System.Text;
 using Api.Configuration;
+using Application.Services.AppointmentService;
 using Application.Services.AuthServices;
 using Application.Services.DoctorServices;
 using Domain.Interfaces;
@@ -45,6 +46,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>()
     .AddScoped<IAuthService, AuthService>()
     .AddScoped<IDoctorRepository, DoctorRepository>()
     .AddScoped<IDoctorService, DoctorService>()
+    .AddScoped<IAppointmentRepository, AppointmentRepository>()
+    .AddScoped<IAppointmentService, AppointmentService>()
     .AddScoped<IAgendaRepository, AgendaRepository>()
     .AddScoped<IAgendaService, AgendaService>();
 

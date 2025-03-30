@@ -35,6 +35,15 @@ namespace Api.Configuration
                         .Cast<IOpenApiAny>()
                         .ToList()
                 });
+                
+                options.MapType<AppointmentStatus>(() => new OpenApiSchema
+                {
+                    Type = "string",
+                    Enum = Enum.GetNames(typeof(AppointmentStatus))
+                        .Select(name => new OpenApiString(name))
+                        .Cast<IOpenApiAny>()
+                        .ToList()
+                });
 
 
                 // Para incluir comentários XML
