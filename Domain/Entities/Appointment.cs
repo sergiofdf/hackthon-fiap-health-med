@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Domain.Enums;
 
 namespace Domain.Entities;
 
@@ -8,7 +9,8 @@ public class Appointment : EntityBase
     public string AppointmentId { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
-    public bool Confirmed { get; set; }
+    public AppointmentStatus Status { get; set; }
+    public string? CancellingJustification { get; set; } = null;
 
     // Relação com Médico
     public string DoctorId { get; set; }
@@ -17,4 +19,9 @@ public class Appointment : EntityBase
     // Relação com Paciente
     public string PatientId { get; set; }
     public Patient Patient { get; set; }
+
+    public Appointment()
+    {
+        AppointmentId = Guid.NewGuid().ToString();
+    }
 }

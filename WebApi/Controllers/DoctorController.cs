@@ -1,4 +1,5 @@
-﻿using Application.Services.DoctorServices;
+﻿using Application.Models;
+using Application.Services.DoctorServices;
 using Domain.Dto;
 using Domain.Enums;
 using Domain.Shared;
@@ -7,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace WebApi.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class DoctorController: ControllerBase
 {
     private readonly IDoctorService _doctorService;
@@ -95,7 +96,7 @@ public class DoctorController: ControllerBase
     /// <response code="400">Erro na requisição.</response>
     /// <response code="401">Sem autorizacao.</response>
     /// <response code="403">Forbidden</response>
-    #region getAgendaConfig
+    #region postAgendaConfig
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationErrorModel), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
@@ -112,6 +113,32 @@ public class DoctorController: ControllerBase
         startDateTime = DateTime.SpecifyKind(startDateTime, DateTimeKind.Utc);
         endDateTime = DateTime.SpecifyKind(endDateTime, DateTimeKind.Utc);
         var res = await _agendaService.AddNewAvailableAgenda(doctorId, startDateTime, endDateTime);
+        return Ok(res);
+    }
+    
+    /// <summary>
+    /// Atualiza agenda de um médico.
+    /// </summary>
+    /// <returns>true</returns>
+    /// <response code="200">Sucesso</response>
+    /// <response code="400">Erro na requisição.</response>
+    /// <response code="401">Sem autorizacao.</response>
+    /// <response code="403">Forbidden</response>
+    #region putAgendaConfig
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationErrorModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status403Forbidden)]
+    #endregion
+    // [Authorize(Roles = "Admin")]
+    [HttpPut("agenda/{agendaId}")]
+    public async Task<ActionResult> PutAgenda(
+        [FromRoute] string agendaId,
+        [FromBody] UpdateAgendaDto requestDto, 
+        CancellationToken cancellationToken)
+    {
+        var res = await _agendaService.UpdateAgenda(agendaId, requestDto);
         return Ok(res);
     }
 }

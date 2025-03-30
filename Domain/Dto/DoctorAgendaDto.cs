@@ -11,5 +11,6 @@ public record DoctorAgendaDto(
     string LastName, 
     string Email, 
     string Crm, 
-    Specialties Specialty);
+    Specialties Specialty,
+    decimal HourlyPrice);
     

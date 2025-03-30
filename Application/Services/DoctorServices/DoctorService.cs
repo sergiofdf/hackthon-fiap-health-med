@@ -20,12 +20,12 @@ public class DoctorService : IDoctorService
     {
         var doctorsData = await _doctorRepository.GetAllAsync();
 
-        return doctorsData.Select(doctor => new DoctorDto(doctor.Id, doctor.Name, doctor.LastName, doctor.Email, doctor.Crm, doctor.Specialty)).ToList();
+        return doctorsData.Select(doctor => new DoctorDto(doctor.Id, doctor.Name, doctor.LastName, doctor.Email, doctor.Crm, doctor.Specialty, doctor.HourlyPrice)).ToList();
     }
 
     public async Task<List<DoctorDto>> GetBySpecialtyAsync(Specialties specialty)
     {
         var doctorsData = await _doctorRepository.GetBySpecialityAsync(specialty);
-        return doctorsData.Select(doctor => new DoctorDto(doctor.Id, doctor.Name, doctor.LastName, doctor.Email, doctor.Crm, doctor.Specialty)).ToList();
+        return doctorsData.Select(doctor => new DoctorDto(doctor.Id, doctor.Name, doctor.LastName, doctor.Email, doctor.Crm, doctor.Specialty, doctor.HourlyPrice)).ToList();
     }
 }
