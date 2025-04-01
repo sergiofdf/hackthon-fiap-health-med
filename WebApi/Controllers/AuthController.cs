@@ -9,7 +9,7 @@ using WebApi.Validation;
 namespace WebApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/auth")]
 public class AuthController: ControllerBase
 {
     private readonly IAuthService _authService;
@@ -40,7 +40,7 @@ public class AuthController: ControllerBase
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status403Forbidden)]
     #endregion
     // [Authorize(Roles = "Admin")]
-    [HttpPost("register")]
+    [HttpPost("registro")]
     public async Task<ActionResult> Register([FromBody] UserDto userDto)
     {
         NewUserValidator validator = new();
@@ -51,10 +51,12 @@ public class AuthController: ControllerBase
     
     /// <summary>
     /// Autentica um usuario e retorna um token JWT.
+    /// </summary>
+    /// /// <remarks>
     /// <p>O campo login pode ser um email  para médico, usuário ou paciente.</p>
     /// <p>O campo login pode ser um CRM  para médico.</p>
     /// <p>O campo login pode ser um CPF para paciente.</p>
-    /// </summary>
+    /// </remarks>
     /// <param name="model">Dados do usuario para login.</param>
     /// <returns>Retorna um token JWT.</returns>
     /// <response code="200">Autenticado com sucesso.</response>

@@ -9,3 +9,8 @@ public class AppointmentDto
     public string DoctorId { get; set; } 
     public string PatientId { get; set; }
 }
+
+public class AppointmentResponseDto : AppointmentDto
+{
+    public AppointmentStatus SaStatus { get; set; } 
+}

@@ -63,8 +63,25 @@ public class AppointmentService : IAppointmentService
         return await _appointmentRepository.AddAppointmentAsync(appointment);
     }
 
-    public async Task<bool> UpdateAppointmentConfirmationAsync(string appointmentId, bool confirmed, string applicantId)
+    public async Task<AppointmentResponseDto> UpdateAppointmentConfirmationAsync(string appointmentId, AppointmentStatus status)
     {
-        throw new NotImplementedException();
+       var updatedAppointment = await _appointmentRepository.UpdateAppointmentConfirmationAsync(appointmentId, status);
+
+       if (updatedAppointment == null)
+       {
+           _logger.LogError("Erro na atualização da consulta {@appointmentId}", appointmentId);
+           ServerException.Throw("500", "Erro na atualização da consulta.");
+       }
+
+       var res = new AppointmentResponseDto
+       {
+           StartTime = updatedAppointment!.StartTime,
+           EndTime = updatedAppointment.EndTime,
+           DoctorId = updatedAppointment.DoctorId,
+           PatientId = updatedAppointment.PatientId,
+           SaStatus = updatedAppointment.Status
+       };
+       
+       return res;
     }
 }

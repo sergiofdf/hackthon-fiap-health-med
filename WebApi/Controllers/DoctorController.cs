@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace WebApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/medicos")]
 public class DoctorController: ControllerBase
 {
     private readonly IDoctorService _doctorService;
