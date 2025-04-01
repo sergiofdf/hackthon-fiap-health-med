@@ -1,6 +1,5 @@
 ﻿using Application.Models;
 using Application.Services.AppointmentService;
-using Domain.Enums;
 using Domain.Shared;
 using Microsoft.AspNetCore.Mvc;
 
