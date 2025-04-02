@@ -46,6 +46,11 @@ public class AgendaService : IAgendaService
         
         var res = await _agendaRepository.AddAvailableSlotAsync(newAgenda);
 
+        if (!res)
+        {
+            NotFoundException.Throw("404", "Médico não encontrado. Confira o id informado.");
+        }
+
         return res;
     }
     

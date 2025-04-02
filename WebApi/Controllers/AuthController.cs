@@ -4,6 +4,7 @@ using Domain.Entities;
 using Domain.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Filters;
 using WebApi.Validation;
 
 namespace WebApi.Controllers;
@@ -38,8 +39,9 @@ public class AuthController: ControllerBase
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status403Forbidden)]
+    [SwaggerRequestExample(typeof(UserDto), typeof(UserRegisterExamples))]
     #endregion
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [HttpPost("registro")]
     public async Task<ActionResult> Register([FromBody] UserDto userDto)
     {
@@ -65,13 +67,14 @@ public class AuthController: ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationErrorModel), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+    [SwaggerRequestExample(typeof(UserLoginDto), typeof(UserLoginExample))]
     #endregion
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] UserLoginDto model)
+    public async Task<ActionResult<TokenDto>> Login([FromBody] UserLoginDto model)
     {
         var token = await _authService.LoginAsync(model);
         if (token is null) return Unauthorized(new { message = "Usuário ou senha inválidos" });
 
-        return Ok(new { token });
+        return Ok(new TokenDto(token));
     }
 }

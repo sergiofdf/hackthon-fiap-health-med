@@ -12,5 +12,5 @@ public class AppointmentDto
 
 public class AppointmentResponseDto : AppointmentDto
 {
-    public AppointmentStatus SaStatus { get; set; } 
+    public AppointmentStatus Status { get; set; } 
 }
