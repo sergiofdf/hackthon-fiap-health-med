@@ -1,7 +1,12 @@
-﻿using Application.Models;
+﻿using System.Security.Claims;
+using Application.Models;
 using Application.Services.AppointmentService;
+using Domain.Entities;
+using Domain.Enums;
 using Domain.Shared;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace WebApi.Controllers;
 
@@ -24,20 +29,22 @@ public class AppointmentController: ControllerBase
     /// <response code="400">Erro na requisição.</response>
     /// <response code="401">Sem autorizacao.</response>
     /// <response code="403">Forbidden</response>
+    /// <response code="500">Error</response>
     #region postConsultaConfig
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationErrorModel), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status403Forbidden)]
     #endregion
-    // [Authorize(Roles = "Admin")]
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult> PostAppointment( [FromBody] AppointmentDto request,
         CancellationToken cancellationToken)
     {
         var res = await _appointmentService.AddAppointmentAsync(request);
-        return Ok(res);
+        if(!res) return Problem("Erro no agendamento da consulta.", statusCode: StatusCodes.Status500InternalServerError);
+        return Created();
     }
     
     /// <summary>
@@ -48,16 +55,17 @@ public class AppointmentController: ControllerBase
     /// <response code="400">Erro na requisição.</response>
     /// <response code="401">Sem autorizacao.</response>
     /// <response code="403">Forbidden</response>
-    #region getConsultaConfig
+    #region getPendingConsultaConfig
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationErrorModel), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status403Forbidden)]
+    [SwaggerResponseExample(200, typeof(PendingAppointmentResponseExample))]
     #endregion
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Doctor,Admin")]
     [HttpGet("pendentes/{doctorId}")]
-    public async Task<ActionResult> GetPendingAppointment( [FromRoute] string doctorId,
+    public async Task<ActionResult<IEnumerable<Appointment>>> GetPendingAppointment( [FromRoute] string doctorId,
         CancellationToken cancellationToken)
     {
         var res = await _appointmentService.GetPendingConfirmationAppointsAsync(doctorId);
@@ -71,7 +79,7 @@ public class AppointmentController: ControllerBase
     /// <p>Permite editar o status de uma consulta, para confirmá-la ou cancelá-la.</p>
     /// </remarks>
     /// <returns>true</returns>
-    /// <response code="200">True.</response>
+    /// <response code="200">Atualizado com sucesso.</response>
     /// <response code="400">Erro na requisição.</response>
     /// <response code="401">Sem autorizacao.</response>
     /// <response code="403">Forbidden</response>
@@ -82,12 +90,27 @@ public class AppointmentController: ControllerBase
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status403Forbidden)]
     #endregion
-    // [Authorize(Roles = "Admin")]
+    [Authorize]
     [HttpPatch("status")]
-    public async Task<ActionResult> UpdatePendingAppointment(
+    public async Task<ActionResult<AppointmentResponseDto>> UpdatePendingAppointment(
         [FromBody]  UpdateAppointmentDto requestModel,
         CancellationToken cancellationToken)
     {
+        var role = User.FindFirst(ClaimTypes.Role)?.Value;
+        if (role == "Patient" && requestModel.Status == AppointmentStatus.CancelledByPatient && string.IsNullOrWhiteSpace(requestModel.Reason))
+        {
+            List<Field> fields = new()
+            {
+                new()
+                {
+                    Name = "Reason",
+                    Value = requestModel.Reason,
+                    ExMessage = "Deve ser informada a justificativa para cancelamento."
+                }
+            };
+            
+            DataValidationException.Throw("400", "Dado inválido.", null, fields);
+        }
         var res = await _appointmentService.UpdateAppointmentConfirmationAsync(requestModel.AppointmentId, requestModel.Status);
         return Ok(res);
     }

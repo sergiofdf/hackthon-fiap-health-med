@@ -79,7 +79,7 @@ public class AppointmentService : IAppointmentService
            EndTime = updatedAppointment.EndTime,
            DoctorId = updatedAppointment.DoctorId,
            PatientId = updatedAppointment.PatientId,
-           SaStatus = updatedAppointment.Status
+           Status = updatedAppointment.Status
        };
        
        return res;

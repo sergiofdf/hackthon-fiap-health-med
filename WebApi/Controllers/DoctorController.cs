@@ -3,6 +3,7 @@ using Application.Services.DoctorServices;
 using Domain.Dto;
 using Domain.Enums;
 using Domain.Shared;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
@@ -38,9 +39,9 @@ public class DoctorController: ControllerBase
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status403Forbidden)]
     #endregion
-    // [Authorize(Roles = "Admin")]
+    [Authorize]
     [HttpGet]
-    public async Task<ActionResult> GetDoctors([FromQuery] Specialties? especilidade, 
+    public async Task<ActionResult<IEnumerable<DoctorDto>>> GetDoctors([FromQuery] Specialties? especilidade, 
         CancellationToken cancellationToken)
     {
         List<DoctorDto> res;
@@ -75,9 +76,9 @@ public class DoctorController: ControllerBase
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status403Forbidden)]
     #endregion
-    // [Authorize(Roles = "Admin")]
+    [Authorize]
     [HttpGet("{doctorId}/agenda")]
-    public async Task<ActionResult> GetAgenda([FromQuery] DateTime startDateTime, 
+    public async Task<ActionResult<IEnumerable<DoctorAgendaDto>>> GetAgenda([FromQuery] DateTime startDateTime, 
         [FromQuery] DateTime endDateTime,
         [FromRoute] string doctorId,
         CancellationToken cancellationToken)
@@ -103,7 +104,7 @@ public class DoctorController: ControllerBase
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status403Forbidden)]
     #endregion
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Doctor,Admin")]
     [HttpPost("{doctorId}/agenda")]
     public async Task<ActionResult> PostAgenda([FromQuery] DateTime startDateTime, 
         [FromQuery] DateTime endDateTime,
@@ -113,7 +114,7 @@ public class DoctorController: ControllerBase
         startDateTime = DateTime.SpecifyKind(startDateTime, DateTimeKind.Utc);
         endDateTime = DateTime.SpecifyKind(endDateTime, DateTimeKind.Utc);
         var res = await _agendaService.AddNewAvailableAgenda(doctorId, startDateTime, endDateTime);
-        return Ok(res);
+        return Created();
     }
     
     /// <summary>
@@ -131,7 +132,7 @@ public class DoctorController: ControllerBase
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status403Forbidden)]
     #endregion
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Doctor,Admin")]
     [HttpPut("agenda/{agendaId}")]
     public async Task<ActionResult> PutAgenda(
         [FromRoute] string agendaId,

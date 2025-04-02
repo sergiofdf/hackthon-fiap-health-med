@@ -27,6 +27,15 @@ namespace Api.Configuration
                 });
                 
                 // Configura o Swagger para exibir enums como string
+                options.MapType<EProfile>(() => new OpenApiSchema
+                {
+                    Type = "string",
+                    Enum = Enum.GetNames(typeof(EProfile))
+                        .Select(name => new OpenApiString(name))
+                        .Cast<IOpenApiAny>()
+                        .ToList()
+                });
+                
                 options.MapType<Specialties>(() => new OpenApiSchema
                 {
                     Type = "string",
