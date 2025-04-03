@@ -17,11 +17,13 @@ public class AppointmentController: ControllerBase
 {
     private readonly IAppointmentService _appointmentService;
     private readonly IAddAppointmentSchedulePublisher _addAppointmentSchedulePublisher;
+    private readonly IUpdateAppointmentStatusPublisher _updateAppointmentStatusPublisher;
 
-    public AppointmentController(IAppointmentService appointmentService, IAddAppointmentSchedulePublisher addAppointmentSchedulePublisher)
+    public AppointmentController(IAppointmentService appointmentService, IAddAppointmentSchedulePublisher addAppointmentSchedulePublisher, IUpdateAppointmentStatusPublisher updateAppointmentStatusPublisher)
     {
         _appointmentService = appointmentService;
         _addAppointmentSchedulePublisher = addAppointmentSchedulePublisher;
+        _updateAppointmentStatusPublisher = updateAppointmentStatusPublisher;
     }
 
     /// <summary>
@@ -81,7 +83,7 @@ public class AppointmentController: ControllerBase
     /// <p>Permite editar o status de uma consulta, para confirmá-la ou cancelá-la.</p>
     /// </remarks>
     /// <returns>true</returns>
-    /// <response code="200">Atualizado com sucesso.</response>
+    /// <response code="200">Solicitação enviada com sucesso.</response>
     /// <response code="400">Erro na requisição.</response>
     /// <response code="401">Sem autorizacao.</response>
     /// <response code="403">Forbidden</response>
@@ -94,7 +96,7 @@ public class AppointmentController: ControllerBase
     #endregion
     [Authorize]
     [HttpPatch("status")]
-    public async Task<ActionResult<AppointmentResponseDto>> UpdatePendingAppointment(
+    public async Task<ActionResult> UpdatePendingAppointment(
         [FromBody]  UpdateAppointmentDto requestModel,
         CancellationToken cancellationToken)
     {
@@ -113,8 +115,8 @@ public class AppointmentController: ControllerBase
             
             DataValidationException.Throw("400", "Dado inválido.", null, fields);
         }
-        var res = await _appointmentService.UpdateAppointmentConfirmationAsync(requestModel.AppointmentId, requestModel.Status);
-        return Ok(res);
+        await _updateAppointmentStatusPublisher.PublishMessage(requestModel, cancellationToken);
+        return Ok("Solicitação de confirmação/cancelamento de agendamento enviada com sucesso!");
     }
     
 }

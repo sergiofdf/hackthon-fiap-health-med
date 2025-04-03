@@ -31,7 +31,7 @@ public class AppointmentRepository : IAppointmentRepository
         return await _dbContext.SaveChangesAsync() > 0;
     }
 
-    public async Task<Appointment?> UpdateAppointmentConfirmationAsync(string appointmentId, AppointmentStatus status)
+    public async Task<Appointment?> UpdateAppointmentConfirmationAsync(string appointmentId, AppointmentStatus status, string? reason = null)
     {
         var appointmentData = await _dbContext.Appointments.FindAsync(appointmentId);
         if (appointmentData == null)
@@ -40,6 +40,7 @@ public class AppointmentRepository : IAppointmentRepository
         }
 
         appointmentData!.Status = status;
+        if(reason != null) appointmentData!.CancellingJustification = reason;
         return await _dbContext.SaveChangesAsync() > 0 ? appointmentData : null;
     }
 }

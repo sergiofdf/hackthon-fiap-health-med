@@ -1,5 +1,5 @@
 using MassTransit;
-using WebApi.Queues;
+using WebApi.Queues.Consumers;
 
 namespace WebApi.Configuration;
 
@@ -25,11 +25,15 @@ public static class MassTransitConfig
                     h.Password(password);
                 });
                 
-                cfg.ReceiveEndpoint("addappointment", e =>
+                cfg.ReceiveEndpoint("add-appointment", e =>
                 {
                     e.ConfigureConsumer<AddAppointmentSchedulingConsumer>(ctx);
                 });
-
+                
+                cfg.ReceiveEndpoint("update-appointment", e =>
+                {
+                    e.ConfigureConsumer<UpdateAppointmentStatusConsumer>(ctx);
+                });
                 
                 cfg.ConfigureEndpoints(ctx);
                 cfg.UseCircuitBreaker(cb =>

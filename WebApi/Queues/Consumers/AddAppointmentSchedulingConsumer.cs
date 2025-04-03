@@ -4,7 +4,7 @@ using Infra;
 using MassTransit;
 using WebApi.Queues.Messages;
 
-namespace WebApi.Queues;
+namespace WebApi.Queues.Consumers;
 
 public class AddAppointmentSchedulingConsumer : IConsumer<SchedulingAppointmentMessage>
 {

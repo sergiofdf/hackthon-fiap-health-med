@@ -20,7 +20,7 @@ public class AddAppointmentSchedulePublisher : IAddAppointmentSchedulePublisher
 
     public async Task PublishMessage(AppointmentDto appointmentDto, CancellationToken cancellationToken = default)
     {
-        var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("queue:addappointment"));
+        var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("queue:add-appointment"));
 
         var message =
             new SchedulingAppointmentMessage(
