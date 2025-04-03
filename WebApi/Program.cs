@@ -1,5 +1,4 @@
 using System.Text;
-using Api.Configuration;
 using Application.Services.AppointmentService;
 using Application.Services.AuthServices;
 using Application.Services.DoctorServices;
@@ -9,7 +8,9 @@ using Infra.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using WebApi.Configuration;
 using WebApi.Middlewares;
+using WebApi.Queues.Publishers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,11 +51,13 @@ builder.Services.AddScoped<IUserRepository, UserRepository>()
     .AddScoped<IAppointmentRepository, AppointmentRepository>()
     .AddScoped<IAppointmentService, AppointmentService>()
     .AddScoped<IAgendaRepository, AgendaRepository>()
-    .AddScoped<IAgendaService, AgendaService>();
+    .AddScoped<IAgendaService, AgendaService>()
+    .AddScoped<IAddAppointmentSchedulePublisher, AddAppointmentSchedulePublisher>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerConfig();
+builder.AddMassTransitConfig();
 
 builder.Services.AddTransient<ExceptionHandlingMiddleware>();
 

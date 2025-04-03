@@ -7,6 +7,7 @@ using Domain.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Filters;
+using WebApi.Queues.Publishers;
 
 namespace WebApi.Controllers;
 
@@ -15,23 +16,25 @@ namespace WebApi.Controllers;
 public class AppointmentController: ControllerBase
 {
     private readonly IAppointmentService _appointmentService;
+    private readonly IAddAppointmentSchedulePublisher _addAppointmentSchedulePublisher;
 
-    public AppointmentController(IAppointmentService appointmentService)
+    public AppointmentController(IAppointmentService appointmentService, IAddAppointmentSchedulePublisher addAppointmentSchedulePublisher)
     {
         _appointmentService = appointmentService;
+        _addAppointmentSchedulePublisher = addAppointmentSchedulePublisher;
     }
 
     /// <summary>
     /// Cadastra uma consulta.
     /// </summary>
     /// <returns>true</returns>
-    /// <response code="201">Consulta criada com sucesso</response>
+    /// <response code="201">Solicitação enviada com sucesso.</response>
     /// <response code="400">Erro na requisição.</response>
     /// <response code="401">Sem autorizacao.</response>
     /// <response code="403">Forbidden</response>
     /// <response code="500">Error</response>
     #region postConsultaConfig
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationErrorModel), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
@@ -42,9 +45,8 @@ public class AppointmentController: ControllerBase
     public async Task<ActionResult> PostAppointment( [FromBody] AppointmentDto request,
         CancellationToken cancellationToken)
     {
-        var res = await _appointmentService.AddAppointmentAsync(request);
-        if(!res) return Problem("Erro no agendamento da consulta.", statusCode: StatusCodes.Status500InternalServerError);
-        return Created();
+        await _addAppointmentSchedulePublisher.PublishMessage(request, cancellationToken);
+        return Ok("Solicitação de agendamento enviada com sucesso!");
     }
     
     /// <summary>

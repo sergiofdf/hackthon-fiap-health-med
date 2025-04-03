@@ -27,7 +27,7 @@ public class AppointmentService : IAppointmentService
         return await _appointmentRepository.GetPendingAppointmentsByDoctorIdAsync(doctorId);
     }
 
-    public async Task<bool> AddAppointmentAsync(AppointmentDto appointmentDto)
+    public async Task<Appointment> AddAppointmentAsync(AppointmentDto appointmentDto)
     {
         appointmentDto.StartTime = DateTime.SpecifyKind(appointmentDto.StartTime, DateTimeKind.Utc);
         appointmentDto.EndTime = DateTime.SpecifyKind(appointmentDto.EndTime, DateTimeKind.Utc);
@@ -47,7 +47,6 @@ public class AppointmentService : IAppointmentService
             List<Field> fields = new() { field };
                 
             DataValidationException.Throw("400", "Erro no agendamento de consulta.", "Agenda indisponível.", fields);
-            return false;
         }
         
         var appointment = new Appointment
@@ -60,7 +59,13 @@ public class AppointmentService : IAppointmentService
             PatientId = appointmentDto.PatientId,
         };
         
-        return await _appointmentRepository.AddAppointmentAsync(appointment);
+        var res = await _appointmentRepository.AddAppointmentAsync(appointment);
+        if (!res)
+        {
+            ServerException.Throw("500", "Erro no agendamento de consulta.");
+        }
+        
+        return appointment;
     }
 
     public async Task<AppointmentResponseDto> UpdateAppointmentConfirmationAsync(string appointmentId, AppointmentStatus status)
