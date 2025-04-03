@@ -68,13 +68,13 @@ public class AppointmentService : IAppointmentService
         return appointment;
     }
 
-    public async Task<AppointmentResponseDto> UpdateAppointmentConfirmationAsync(string appointmentId, AppointmentStatus status)
+    public async Task<AppointmentResponseDto> UpdateAppointmentConfirmationAsync(UpdateAppointmentDto appointmentDto)
     {
-       var updatedAppointment = await _appointmentRepository.UpdateAppointmentConfirmationAsync(appointmentId, status);
+       var updatedAppointment = await _appointmentRepository.UpdateAppointmentConfirmationAsync(appointmentDto.AppointmentId, appointmentDto.Status, appointmentDto.Reason);
 
        if (updatedAppointment == null)
        {
-           _logger.LogError("Erro na atualização da consulta {@appointmentId}", appointmentId);
+           _logger.LogError("Erro na atualização da consulta {@appointmentId}", appointmentDto.AppointmentId);
            ServerException.Throw("500", "Erro na atualização da consulta.");
        }
 

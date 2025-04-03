@@ -8,5 +8,5 @@ public interface IAppointmentService
 {
     Task<List<Appointment>> GetPendingConfirmationAppointsAsync(string doctorId);
     Task<Appointment> AddAppointmentAsync(AppointmentDto appointmentDto);
-    Task<AppointmentResponseDto> UpdateAppointmentConfirmationAsync(string appointmentId, AppointmentStatus status);
+    Task<AppointmentResponseDto> UpdateAppointmentConfirmationAsync(UpdateAppointmentDto appointmentDto);
 }

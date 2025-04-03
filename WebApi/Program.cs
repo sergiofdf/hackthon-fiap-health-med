@@ -52,7 +52,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>()
     .AddScoped<IAppointmentService, AppointmentService>()
     .AddScoped<IAgendaRepository, AgendaRepository>()
     .AddScoped<IAgendaService, AgendaService>()
-    .AddScoped<IAddAppointmentSchedulePublisher, AddAppointmentSchedulePublisher>();
+    .AddScoped<IAddAppointmentSchedulePublisher, AddAppointmentSchedulePublisher>()
+    .AddScoped<IUpdateAppointmentStatusPublisher, UpdateAppointmentStatusPublisher>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
