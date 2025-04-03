@@ -4,7 +4,7 @@ using System.Reflection;
 using Domain.Enums;
 using Microsoft.OpenApi.Any;
 
-namespace Api.Configuration
+namespace WebApi.Configuration
 {
     public static class SwaggerConfig
     {
