@@ -6,26 +6,17 @@ using Microsoft.Extensions.Logging;
 
 namespace Infra.Repository;
 
-public class DoctorRepository : IDoctorRepository
+public class DoctorRepository(AppDbContext dbContext) : IDoctorRepository
 {
-    private readonly ILogger<DoctorRepository> _logger;
-    protected AppDbContext _dbContext;
-
-    public DoctorRepository(ILogger<DoctorRepository> logger, AppDbContext dbContext)
+    public async Task<List<Doctor>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        _logger = logger;
-        _dbContext = dbContext;
-    }
-    
-    public async Task<List<Doctor>> GetAllAsync()
-    {
-        return await _dbContext.Doctors.ToListAsync();
+        return await dbContext.Doctors.ToListAsync(cancellationToken);
     }
 
-    public async Task<List<Doctor>> GetBySpecialityAsync(Specialties specialty)
+    public async Task<List<Doctor>> GetBySpecialityAsync(Specialties specialty, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Doctors
+        return await dbContext.Doctors
             .Where(d => d.Specialty == specialty)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 }

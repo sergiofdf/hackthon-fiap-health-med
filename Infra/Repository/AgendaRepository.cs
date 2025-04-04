@@ -6,36 +6,27 @@ using Microsoft.Extensions.Logging;
 
 namespace Infra.Repository;
 
-public class AgendaRepository : IAgendaRepository
+public class AgendaRepository(AppDbContext dbContext) : IAgendaRepository
 {
-    private readonly ILogger<AgendaRepository> _logger;
-    protected AppDbContext _dbContext;
-
-    public AgendaRepository(ILogger<AgendaRepository> logger, AppDbContext dbContext)
+    public async Task<Agenda?> GetAgendaById(string agendaId, CancellationToken cancellationToken = default)
     {
-        _logger = logger;
-        _dbContext = dbContext;
+        return await dbContext.Agendas.FindAsync([agendaId, cancellationToken], cancellationToken);
     }
 
-    public async Task<Agenda?> GetAgendaById(string agendaId)
+    public async Task<bool> AddAvailableSlotAsync(Agenda newAgenda, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Agendas.FindAsync(agendaId);
-    }
-
-    public async Task<bool> AddAvailableSlotAsync(Agenda newAgenda)
-    {
-        var doctor = await _dbContext.Doctors.FindAsync(newAgenda.DoctorId);
+        var doctor = await dbContext.Doctors.FindAsync([newAgenda.DoctorId, cancellationToken], cancellationToken);
         if (doctor == null) return false;
         
-        await _dbContext.Agendas.AddAsync(newAgenda);
-        await _dbContext.SaveChangesAsync();
+        await dbContext.Agendas.AddAsync(newAgenda, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }
 
     public async Task<List<DoctorAgendaDto>> GetAvailableSlotsAsync(string doctorId, DateTime startQueryDate,
-        DateTime endQueryDate)
+        DateTime endQueryDate, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Agendas
+        return await dbContext.Agendas
             .Where(a => a.DoctorId == doctorId && a.Available &&
                         a.StartTime >= startQueryDate && a.EndTime <= endQueryDate)
             .OrderBy(a => a.StartTime)
@@ -52,18 +43,18 @@ public class AgendaRepository : IAgendaRepository
                 a.Doctor.Specialty,
                 a.Doctor.HourlyPrice
             ))
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<bool> EditSlotAsync(Agenda newAgenda)
+    public async Task<bool> EditSlotAsync(Agenda newAgenda, CancellationToken cancellationToken = default)
     {
-        var slot = await _dbContext.Agendas.FindAsync(newAgenda.Id);
+        var slot = await dbContext.Agendas.FindAsync([newAgenda.Id], cancellationToken);
         if (slot == null) return false;
         
         slot.Available = newAgenda.Available;
         slot.StartTime = newAgenda.StartTime;
         slot.EndTime = newAgenda.EndTime;
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }
 }

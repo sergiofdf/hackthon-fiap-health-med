@@ -5,6 +5,6 @@ namespace Domain.Interfaces;
 
 public interface IDoctorRepository
 {
-    Task<List<Doctor>> GetAllAsync();
-    Task<List<Doctor>> GetBySpecialityAsync(Specialties specialty);
+    Task<List<Doctor>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<List<Doctor>> GetBySpecialityAsync(Specialties specialty, CancellationToken cancellationToken = default);
 }

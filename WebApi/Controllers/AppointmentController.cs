@@ -13,19 +13,12 @@ namespace WebApi.Controllers;
 
 [ApiController]
 [Route("api/consultas")]
-public class AppointmentController: ControllerBase
+public class AppointmentController(
+    IAppointmentService appointmentService,
+    IAddAppointmentSchedulePublisher addAppointmentSchedulePublisher,
+    IUpdateAppointmentStatusPublisher updateAppointmentStatusPublisher)
+    : ControllerBase
 {
-    private readonly IAppointmentService _appointmentService;
-    private readonly IAddAppointmentSchedulePublisher _addAppointmentSchedulePublisher;
-    private readonly IUpdateAppointmentStatusPublisher _updateAppointmentStatusPublisher;
-
-    public AppointmentController(IAppointmentService appointmentService, IAddAppointmentSchedulePublisher addAppointmentSchedulePublisher, IUpdateAppointmentStatusPublisher updateAppointmentStatusPublisher)
-    {
-        _appointmentService = appointmentService;
-        _addAppointmentSchedulePublisher = addAppointmentSchedulePublisher;
-        _updateAppointmentStatusPublisher = updateAppointmentStatusPublisher;
-    }
-
     /// <summary>
     /// Cadastra uma consulta.
     /// </summary>
@@ -45,9 +38,9 @@ public class AppointmentController: ControllerBase
     [Authorize]
     [HttpPost]
     public async Task<ActionResult> PostAppointment( [FromBody] AppointmentDto request,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
-        await _addAppointmentSchedulePublisher.PublishMessage(request, cancellationToken);
+        await addAppointmentSchedulePublisher.PublishMessage(request, cancellationToken);
         return Ok("Solicitação de agendamento enviada com sucesso!");
     }
     
@@ -70,9 +63,9 @@ public class AppointmentController: ControllerBase
     [Authorize(Roles = "Doctor,Admin")]
     [HttpGet("pendentes/{doctorId}")]
     public async Task<ActionResult<IEnumerable<Appointment>>> GetPendingAppointment( [FromRoute] string doctorId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
-        var res = await _appointmentService.GetPendingConfirmationAppointsAsync(doctorId);
+        var res = await appointmentService.GetPendingConfirmationAppointsAsync(doctorId, cancellationToken);
         return Ok(res);
     }
     
@@ -98,24 +91,24 @@ public class AppointmentController: ControllerBase
     [HttpPatch("status")]
     public async Task<ActionResult> UpdatePendingAppointment(
         [FromBody]  UpdateAppointmentDto requestModel,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         var role = User.FindFirst(ClaimTypes.Role)?.Value;
         if (role == "Patient" && requestModel.Status == AppointmentStatus.CancelledByPatient && string.IsNullOrWhiteSpace(requestModel.Reason))
         {
-            List<Field> fields = new()
-            {
+            List<Field> fields =
+            [
                 new()
                 {
                     Name = "Reason",
-                    Value = requestModel.Reason,
+                    Value = "",
                     ExMessage = "Deve ser informada a justificativa para cancelamento."
                 }
-            };
+            ];
             
-            DataValidationException.Throw("400", "Dado inválido.", null, fields);
+            DataValidationException.Throw("400", "Dado inválido.", "", fields);
         }
-        await _updateAppointmentStatusPublisher.PublishMessage(requestModel, cancellationToken);
+        await updateAppointmentStatusPublisher.PublishMessage(requestModel, cancellationToken);
         return Ok("Solicitação de confirmação/cancelamento de agendamento enviada com sucesso!");
     }
     

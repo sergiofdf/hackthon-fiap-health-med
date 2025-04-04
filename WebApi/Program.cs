@@ -3,11 +3,15 @@ using Application.Services.AppointmentService;
 using Application.Services.AuthServices;
 using Application.Services.DoctorServices;
 using Domain.Interfaces;
+using HealthChecks.UI.Client;
 using Infra;
 using Infra.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Prometheus;
+using Prometheus.SystemMetrics;
 using WebApi.Configuration;
 using WebApi.Middlewares;
 using WebApi.Queues.Publishers;
@@ -62,6 +66,12 @@ builder.AddMassTransitConfig();
 
 builder.Services.AddTransient<ExceptionHandlingMiddleware>();
 
+builder.Services.AddHealthChecks()
+    .AddNpgSql(builder.Configuration.GetConnectionString("PostgresConnection")!)
+    .ForwardToPrometheus();
+
+builder.Services.AddSystemMetrics();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -71,12 +81,23 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponseNoExceptionDetails
+});
+
+app.UseHttpMetrics();
+
 app.UseHttpsRedirection();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseAuthorization();
 
+app.MapMetrics();
+
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }

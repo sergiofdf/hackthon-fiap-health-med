@@ -10,17 +10,8 @@ namespace WebApi.Controllers;
 
 [ApiController]
 [Route("api/medicos")]
-public class DoctorController: ControllerBase
+public class DoctorController(IAgendaService agendaService, IDoctorService doctorService) : ControllerBase
 {
-    private readonly IDoctorService _doctorService;
-    private readonly IAgendaService _agendaService;
-
-    public DoctorController(IAgendaService agendaService, IDoctorService doctorService)
-    {
-        _agendaService = agendaService;
-        _doctorService = doctorService;
-    }
-    
     /// <summary>
     /// Consulta médicos.
     /// </summary>
@@ -42,7 +33,7 @@ public class DoctorController: ControllerBase
     [Authorize]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<DoctorDto>>> GetDoctors([FromQuery] Specialties? especilidade, 
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         List<DoctorDto> res;
         if (especilidade != null)
@@ -51,11 +42,11 @@ public class DoctorController: ControllerBase
             {
                 return BadRequest("Especialidade inválida.");
             }
-            res = await _doctorService.GetBySpecialtyAsync((Specialties)specialtyEnum);
+            res = await doctorService.GetBySpecialtyAsync(specialtyEnum, cancellationToken);
         }
         else
         {
-            res = await _doctorService.GetAllAsync(); 
+            res = await doctorService.GetAllAsync(cancellationToken); 
         }
         
         return Ok(res);
@@ -81,11 +72,11 @@ public class DoctorController: ControllerBase
     public async Task<ActionResult<IEnumerable<DoctorAgendaDto>>> GetAgenda([FromQuery] DateTime startDateTime, 
         [FromQuery] DateTime endDateTime,
         [FromRoute] string doctorId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         startDateTime = DateTime.SpecifyKind(startDateTime, DateTimeKind.Utc);
         endDateTime = DateTime.SpecifyKind(endDateTime, DateTimeKind.Utc);
-        var res = await _agendaService.GetDoctorAvailableAgendaByTime(doctorId, startDateTime, endDateTime);
+        var res = await agendaService.GetDoctorAvailableAgendaByTime(doctorId, startDateTime, endDateTime, cancellationToken);
         return Ok(res);
     }
     
@@ -109,11 +100,11 @@ public class DoctorController: ControllerBase
     public async Task<ActionResult> PostAgenda([FromQuery] DateTime startDateTime, 
         [FromQuery] DateTime endDateTime,
         [FromRoute] string doctorId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         startDateTime = DateTime.SpecifyKind(startDateTime, DateTimeKind.Utc);
         endDateTime = DateTime.SpecifyKind(endDateTime, DateTimeKind.Utc);
-        var res = await _agendaService.AddNewAvailableAgenda(doctorId, startDateTime, endDateTime);
+        await agendaService.AddNewAvailableAgenda(doctorId, startDateTime, endDateTime, cancellationToken);
         return Created();
     }
     
@@ -137,9 +128,9 @@ public class DoctorController: ControllerBase
     public async Task<ActionResult> PutAgenda(
         [FromRoute] string agendaId,
         [FromBody] UpdateAgendaDto requestDto, 
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
-        var res = await _agendaService.UpdateAgenda(agendaId, requestDto);
+        var res = await agendaService.UpdateAgenda(agendaId, requestDto, cancellationToken);
         return Ok(res);
     }
 }
