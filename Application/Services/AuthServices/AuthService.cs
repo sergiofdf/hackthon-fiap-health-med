@@ -14,24 +14,14 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Services.AuthServices;
 
-public class AuthService : IAuthService
+public class AuthService(IUserRepository userRepository, IConfiguration config, ILogger<AuthService> logger)
+    : IAuthService
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IConfiguration _config;
-    private readonly ILogger<AuthService> _logger;
-
-    public AuthService(IUserRepository userRepository, IConfiguration config, ILogger<AuthService> logger)
+    public async Task<bool> RegisterUserAsync(UserDto userDto, CancellationToken cancellationToken = default)
     {
-        _userRepository = userRepository;
-        _config = config;
-        _logger = logger;
-    }
-    
-    public async Task<bool> RegisterUserAsync(UserDto userDto)
-    {
-        if (await _userRepository.GetByEmailAsync(userDto.Email!) is not null)
+        if (await userRepository.GetByEmailAsync(userDto.Email, cancellationToken) is not null)
         {
-            _logger.LogError("Failed to add user {user}. Email already registered.", userDto);
+            logger.LogError("Failed to add user {user}. Email already registered.", userDto);
                
             Field field = new()
             {
@@ -39,12 +29,12 @@ public class AuthService : IAuthService
                 Value = userDto.Email,
                 ExMessage = "Email ja existente."
             };
-            List<Field> fields = new() { field };
+            List<Field> fields = [field];
                 
             DataValidationException.Throw("400", "Erro no registro de usuario", "Email duplicado", fields);
         }
 
-        User user = userDto.Profile switch
+        var user = userDto.Profile switch
         {
             EProfile.Doctor => new Doctor()
             {
@@ -75,7 +65,7 @@ public class AuthService : IAuthService
         
         user.PasswordHash = hashedPassword;
         
-        var res = await _userRepository.AddAsync(user);
+        var res = await userRepository.AddAsync(user, cancellationToken);
         
         if (!res)
             ServerException.Throw(ErrorList.Registration.General.Code, ErrorList.Registration.General.ExMessage);
@@ -83,35 +73,31 @@ public class AuthService : IAuthService
         return res; 
     }
 
-    public async Task<string?> LoginAsync(UserLoginDto loginDto)
+    public async Task<string?> LoginAsync(UserLoginDto loginDto, CancellationToken cancellationToken = default)
     {
         User? user = null;
         if (IsCrm(loginDto.Login))
         {
-            user = await _userRepository.GetByCrmAsync(loginDto.Login);
+            user = await userRepository.GetByCrmAsync(loginDto.Login, cancellationToken);
         } 
         else if (IsEmail(loginDto.Login))
         {
-            user = await _userRepository.GetByEmailAsync(loginDto.Login);
+            user = await userRepository.GetByEmailAsync(loginDto.Login, cancellationToken);
         }
         else if (IsCpf(loginDto.Login))
         {
-            user = await _userRepository.GetByCpfAsync(loginDto.Login);
+            user = await userRepository.GetByCpfAsync(loginDto.Login, cancellationToken);
         }
         
         if (user is null) return null;
         
-        if (new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, loginDto.Password) ==
-            PasswordVerificationResult.Failed)
-        {
-            return null;    
-        }
-        return GenerateJwtToken(user);
+        return new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, loginDto.Password) ==
+               PasswordVerificationResult.Failed ? null : GenerateJwtToken(user);
     }
 
     private string GenerateJwtToken(User user)
     {
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -121,10 +107,10 @@ public class AuthService : IAuthService
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Profile.ToString()),
             ]),
-            Expires = DateTime.UtcNow.AddMinutes(_config.GetValue<int>("Jwt:ExpirationInMinutes")),
+            Expires = DateTime.UtcNow.AddMinutes(config.GetValue<int>("Jwt:ExpirationInMinutes")),
             SigningCredentials = credentials,
-            Issuer = _config["Jwt:Issuer"],
-            Audience = _config["Jwt:Audience"]
+            Issuer = config["Jwt:Issuer"],
+            Audience = config["Jwt:Audience"]
         };
 
         var handler = new JsonWebTokenHandler();
@@ -148,7 +134,7 @@ public class AuthService : IAuthService
 
     private static bool IsCrm(string input)
     {
-        var regex = new Regex(@"^\d{4,6}-[A-Z]{2}$"); // 4 a 6 dígitos seguidos por "-UF"
+        var regex = new Regex(@"^\d{4,6}-[A-Z]{2}$"); // 4 a 6 digitos seguidos por "-UF"
         return regex.IsMatch(input);
     }
 }

@@ -6,6 +6,6 @@ namespace Application.Services.DoctorServices;
 
 public interface IDoctorService
 {
-    Task<List<DoctorDto>> GetAllAsync();
-    Task<List<DoctorDto>> GetBySpecialtyAsync(Specialties specialty);
+    Task<List<DoctorDto>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<List<DoctorDto>> GetBySpecialtyAsync(Specialties specialty, CancellationToken cancellationToken = default);
 }

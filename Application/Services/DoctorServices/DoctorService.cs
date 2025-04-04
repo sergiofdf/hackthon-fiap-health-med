@@ -5,27 +5,18 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Services.DoctorServices;
 
-public class DoctorService : IDoctorService
+public class DoctorService(IDoctorRepository doctorRepository) : IDoctorService
 {
-    private readonly IDoctorRepository _doctorRepository;
-    private readonly ILogger<DoctorService> _logger;
-
-    public DoctorService(IDoctorRepository doctorRepository, ILogger<DoctorService> logger)
+    public async Task<List<DoctorDto>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        _doctorRepository = doctorRepository;
-        _logger = logger;
-    }
-    
-    public async Task<List<DoctorDto>> GetAllAsync()
-    {
-        var doctorsData = await _doctorRepository.GetAllAsync();
+        var doctorsData = await doctorRepository.GetAllAsync(cancellationToken);
 
         return doctorsData.Select(doctor => new DoctorDto(doctor.Id, doctor.Name, doctor.LastName, doctor.Email, doctor.Crm, doctor.Specialty, doctor.HourlyPrice)).ToList();
     }
 
-    public async Task<List<DoctorDto>> GetBySpecialtyAsync(Specialties specialty)
+    public async Task<List<DoctorDto>> GetBySpecialtyAsync(Specialties specialty, CancellationToken cancellationToken = default)
     {
-        var doctorsData = await _doctorRepository.GetBySpecialityAsync(specialty);
+        var doctorsData = await doctorRepository.GetBySpecialityAsync(specialty, cancellationToken);
         return doctorsData.Select(doctor => new DoctorDto(doctor.Id, doctor.Name, doctor.LastName, doctor.Email, doctor.Crm, doctor.Specialty, doctor.HourlyPrice)).ToList();
     }
 }

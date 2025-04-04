@@ -8,20 +8,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Services.DoctorServices;
 
-public class AgendaService : IAgendaService
+public class AgendaService(IAgendaRepository agendaRepository) : IAgendaService
 {
-    private readonly IAgendaRepository _agendaRepository;
-    private readonly ILogger<AgendaService> _logger;
-
-    public AgendaService(IAgendaRepository agendaRepository, ILogger<AgendaService> logger)
+    public async Task<bool> AddNewAvailableAgenda(string doctorId, DateTime startDateTime, DateTime endDateTime, CancellationToken ct = default)
     {
-        _agendaRepository = agendaRepository;
-        _logger = logger;
-    }
-
-    public async Task<bool> AddNewAvailableAgenda(string doctorId, DateTime startDateTime, DateTime endDateTime)
-    {
-        var doctorAvaiableAgendas = await GetDoctorAvailableAgendaByTime(doctorId, startDateTime, endDateTime);
+        var doctorAvaiableAgendas = await GetDoctorAvailableAgendaByTime(doctorId, startDateTime, endDateTime, ct);
 
         if (doctorAvaiableAgendas.Count > 0)
         {
@@ -44,7 +35,7 @@ public class AgendaService : IAgendaService
             DoctorId = doctorId,
         };
         
-        var res = await _agendaRepository.AddAvailableSlotAsync(newAgenda);
+        var res = await agendaRepository.AddAvailableSlotAsync(newAgenda, ct);
 
         if (!res)
         {
@@ -54,9 +45,9 @@ public class AgendaService : IAgendaService
         return res;
     }
     
-    public async Task<bool> UpdateAgenda(string agendaId, UpdateAgendaDto updateAgendaDto)
+    public async Task<bool> UpdateAgenda(string agendaId, UpdateAgendaDto updateAgendaDto, CancellationToken ct = default)
     {
-        var agenda = await _agendaRepository.GetAgendaById(agendaId);
+        var agenda = await agendaRepository.GetAgendaById(agendaId, ct);
         
         if (agenda == null)
         {
@@ -80,12 +71,12 @@ public class AgendaService : IAgendaService
             DoctorId = agenda!.DoctorId
         };
         
-        var res = await _agendaRepository.EditSlotAsync(newAgenda);
+        var res = await agendaRepository.EditSlotAsync(newAgenda, ct);
         
         return res;
     }
-    public async Task<List<DoctorAgendaDto>> GetDoctorAvailableAgendaByTime(string doctorId, DateTime startQueryDate, DateTime endQueryDate)
+    public async Task<List<DoctorAgendaDto>> GetDoctorAvailableAgendaByTime(string doctorId, DateTime startQueryDate, DateTime endQueryDate, CancellationToken ct = default)
     {
-        return await _agendaRepository.GetAvailableSlotsAsync(doctorId, startQueryDate, endQueryDate);
+        return await agendaRepository.GetAvailableSlotsAsync(doctorId, startQueryDate, endQueryDate, ct);
     }
 }

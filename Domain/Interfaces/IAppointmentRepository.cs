@@ -5,8 +5,8 @@ namespace Domain.Interfaces;
 
 public interface IAppointmentRepository
 {
-    Task<Appointment?> GetAppointmentByIdAsync(string appointmentId);
-    Task<List<Appointment>> GetPendingAppointmentsByDoctorIdAsync(string doctorId);
-    Task<bool> AddAppointmentAsync(Appointment appointment);
-    Task<Appointment?> UpdateAppointmentConfirmationAsync(string appointmentId, AppointmentStatus status, string? reason = null);
+    Task<Appointment?> GetAppointmentByIdAsync(string appointmentId, CancellationToken cancellationToken = default);
+    Task<List<Appointment>> GetPendingAppointmentsByDoctorIdAsync(string doctorId, CancellationToken cancellationToken = default);
+    Task<bool> AddAppointmentAsync(Appointment appointment, CancellationToken cancellationToken = default);
+    Task<Appointment?> UpdateAppointmentConfirmationAsync(string appointmentId, AppointmentStatus status, string? reason = null, CancellationToken cancellationToken = default);
 }

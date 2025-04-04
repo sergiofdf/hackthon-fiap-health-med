@@ -6,34 +6,27 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infra.Repository;
 
-public class AppointmentRepository : IAppointmentRepository
+public class AppointmentRepository(AppDbContext dbContext) : IAppointmentRepository
 {
-    protected AppDbContext _dbContext;
-
-    public AppointmentRepository(AppDbContext dbContext)
+    public async Task<Appointment?> GetAppointmentByIdAsync(string appointmentId, CancellationToken cancellationToken = default)
     {
-        _dbContext = dbContext;
+        return await dbContext.Appointments.FindAsync([appointmentId, cancellationToken], cancellationToken: cancellationToken);
     }
 
-    public async Task<Appointment?> GetAppointmentByIdAsync(string appointmentId)
+    public async Task<List<Appointment>> GetPendingAppointmentsByDoctorIdAsync(string doctorId, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Appointments.FindAsync(appointmentId);
+        return await dbContext.Appointments.Where(a => a.DoctorId == doctorId && a.Status == AppointmentStatus.Pending).ToListAsync(cancellationToken);
     }
 
-    public async Task<List<Appointment>> GetPendingAppointmentsByDoctorIdAsync(string doctorId)
+    public async Task<bool> AddAppointmentAsync(Appointment appointment, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Appointments.Where(a => a.DoctorId == doctorId && a.Status == AppointmentStatus.Pending).ToListAsync();
+        await dbContext.Appointments.AddAsync(appointment, cancellationToken);
+        return await dbContext.SaveChangesAsync(cancellationToken) > 0;
     }
 
-    public async Task<bool> AddAppointmentAsync(Appointment appointment)
+    public async Task<Appointment?> UpdateAppointmentConfirmationAsync(string appointmentId, AppointmentStatus status, string? reason = null, CancellationToken cancellationToken = default)
     {
-        await _dbContext.Appointments.AddAsync(appointment);
-        return await _dbContext.SaveChangesAsync() > 0;
-    }
-
-    public async Task<Appointment?> UpdateAppointmentConfirmationAsync(string appointmentId, AppointmentStatus status, string? reason = null)
-    {
-        var appointmentData = await _dbContext.Appointments.FindAsync(appointmentId);
+        var appointmentData = await dbContext.Appointments.FindAsync([appointmentId, cancellationToken], cancellationToken: cancellationToken);
         if (appointmentData == null)
         {
             NotFoundException.Throw("404", "Consulta não encontrada.");
@@ -41,6 +34,6 @@ public class AppointmentRepository : IAppointmentRepository
 
         appointmentData!.Status = status;
         if(reason != null) appointmentData!.CancellingJustification = reason;
-        return await _dbContext.SaveChangesAsync() > 0 ? appointmentData : null;
+        return await dbContext.SaveChangesAsync(cancellationToken) > 0 ? appointmentData : null;
     }
 }
