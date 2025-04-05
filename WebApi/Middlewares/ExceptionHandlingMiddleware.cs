@@ -42,6 +42,13 @@ public class ExceptionHandlingMiddleware : IMiddleware
                     context.Response.ContentType = "application/json";
                     await context.Response.WriteAsync(jsonResp);
                     break;
+                case ForbiddenException forbiddenException:
+                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    ErrorModel forbiddenError= new(forbiddenException.Code, forbiddenException.ExMessage);
+                    jsonResp = JsonSerializer.Serialize(forbiddenError);
+                    context.Response.ContentType = "application/json";
+                    await context.Response.WriteAsync(jsonResp);
+                    break;
                 case ServerException serverException:
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     ErrorModel serverError = new(serverException.Code, serverException.ExMessage);

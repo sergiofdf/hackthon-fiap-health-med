@@ -94,6 +94,11 @@ public class AppointmentController(
         CancellationToken cancellationToken = default)
     {
         var role = User.FindFirst(ClaimTypes.Role)?.Value;
+        if (requestModel.Status == AppointmentStatus.CancelledByPatient && role == "Doctor")
+        {
+            return BadRequest("Não é permitido um cancelamento do tipo paciente por usuário do tipo médico.");
+        }
+        
         if (role == "Patient" && requestModel.Status == AppointmentStatus.CancelledByPatient && string.IsNullOrWhiteSpace(requestModel.Reason))
         {
             List<Field> fields =
