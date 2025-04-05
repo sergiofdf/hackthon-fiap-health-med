@@ -2,8 +2,10 @@ using System.Globalization;
 using Application.Models;
 using Domain.Dto;
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Interfaces;
 using Domain.Shared;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Services.DoctorServices;
@@ -45,7 +47,7 @@ public class AgendaService(IAgendaRepository agendaRepository) : IAgendaService
         return res;
     }
     
-    public async Task<bool> UpdateAgenda(string agendaId, UpdateAgendaDto updateAgendaDto, CancellationToken ct = default)
+    public async Task<bool> UpdateAgenda(string agendaId, UpdateAgendaDto updateAgendaDto, string userRole, string userId, CancellationToken ct = default)
     {
         var agenda = await agendaRepository.GetAgendaById(agendaId, ct);
         
@@ -54,6 +56,11 @@ public class AgendaService(IAgendaRepository agendaRepository) : IAgendaService
             NotFoundException.Throw("404", "Agenda não encontrada.");
         }
 
+        if (userRole == EProfile.Doctor.ToString() && userId != agenda!.DoctorId)
+        {
+            ForbiddenException.Throw("403", "Forbidden");
+        }
+        
         var startDateTimeUtc = updateAgendaDto.StartDateTime is not null
             ? DateTime.SpecifyKind((DateTime) updateAgendaDto.StartDateTime, DateTimeKind.Utc)
             : agenda!.StartTime;

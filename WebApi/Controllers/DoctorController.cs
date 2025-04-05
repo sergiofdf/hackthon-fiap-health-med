@@ -1,4 +1,6 @@
-﻿using Application.Models;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Application.Models;
 using Application.Services.DoctorServices;
 using Domain.Dto;
 using Domain.Enums;
@@ -130,7 +132,11 @@ public class DoctorController(IAgendaService agendaService, IDoctorService docto
         [FromBody] UpdateAgendaDto requestDto, 
         CancellationToken cancellationToken = default)
     {
-        var res = await agendaService.UpdateAgenda(agendaId, requestDto, cancellationToken);
+
+        var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        
+        var res = await agendaService.UpdateAgenda(agendaId, requestDto, userRole, userId, cancellationToken);
         return Ok(res);
     }
 }
