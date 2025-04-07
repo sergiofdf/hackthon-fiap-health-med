@@ -13,3 +13,12 @@ public record UserDto(
     string? Cpf = null,
     string? PhoneNumber = null
     );
+
+
+public record UserResponseDto(
+    string Id,
+    string Name, 
+    string LastName,
+    string Email, 
+    EProfile Profile
+);

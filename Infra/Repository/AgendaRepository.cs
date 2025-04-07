@@ -41,7 +41,7 @@ public class AgendaRepository(AppDbContext dbContext) : IAgendaRepository
                 a.Doctor.Email,
                 a.Doctor.Crm,
                 a.Doctor.Specialty,
-                a.Doctor.HourlyPrice
+                a.HourlyPrice
             ))
             .ToListAsync(cancellationToken);
     }

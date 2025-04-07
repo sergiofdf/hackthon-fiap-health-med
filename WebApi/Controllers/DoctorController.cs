@@ -22,15 +22,14 @@ public class DoctorController(IAgendaService agendaService, IDoctorService docto
     /// </remarks>
     /// <returns>Retorna medicos.</returns>
     /// <response code="200">Médicos disponíveis</response>
-    /// <response code="400">Erro na requisição.</response>
-    /// <response code="401">Sem autorizacao.</response>
+    /// <response code="401">Sem autorizacao</response>
     /// <response code="403">Forbidden</response>
+    /// <response code="500">Internal Server Error</response>
     #region getMedicosConfig
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ValidationErrorModel), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
     #endregion
     [Authorize]
     [HttpGet]
@@ -97,16 +96,13 @@ public class DoctorController(IAgendaService agendaService, IDoctorService docto
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status403Forbidden)]
     #endregion
-    [Authorize(Roles = "Doctor,Admin")]
+    [Authorize(Roles = "Doctor, Admin")]
     [HttpPost("{doctorId}/agenda")]
-    public async Task<ActionResult> PostAgenda([FromQuery] DateTime startDateTime, 
-        [FromQuery] DateTime endDateTime,
+    public async Task<ActionResult> PostAgenda([FromBody] AgendaDto agendaDto,
         [FromRoute] string doctorId,
         CancellationToken cancellationToken = default)
     {
-        startDateTime = DateTime.SpecifyKind(startDateTime, DateTimeKind.Utc);
-        endDateTime = DateTime.SpecifyKind(endDateTime, DateTimeKind.Utc);
-        await agendaService.AddNewAvailableAgenda(doctorId, startDateTime, endDateTime, cancellationToken);
+        await agendaService.AddNewAvailableAgenda(doctorId, agendaDto, cancellationToken);
         return Created();
     }
     
@@ -129,7 +125,7 @@ public class DoctorController(IAgendaService agendaService, IDoctorService docto
     [HttpPut("agenda/{agendaId}")]
     public async Task<ActionResult> PutAgenda(
         [FromRoute] string agendaId,
-        [FromBody] UpdateAgendaDto requestDto, 
+        [FromBody] AgendaDto requestDto, 
         CancellationToken cancellationToken = default)
     {
 

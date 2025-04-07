@@ -9,6 +9,7 @@ public class Agenda : EntityBase
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public bool Available { get; set; }
+    public decimal HourlyPrice { get; set; }
     
     public string DoctorId { get; set; }
     public Doctor Doctor { get; set; }
