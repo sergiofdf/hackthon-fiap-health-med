@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: healthapp-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: localhost
+      http:
+        paths: 
+          - path: /health-api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service: 
+                name: health-api
+                port: 
+                  number: 8080
