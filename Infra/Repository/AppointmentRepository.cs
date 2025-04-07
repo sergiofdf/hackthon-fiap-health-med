@@ -13,9 +13,9 @@ public class AppointmentRepository(AppDbContext dbContext) : IAppointmentReposit
         return await dbContext.Appointments.FindAsync([appointmentId, cancellationToken], cancellationToken: cancellationToken);
     }
 
-    public async Task<List<Appointment>> GetPendingAppointmentsByDoctorIdAsync(string doctorId, CancellationToken cancellationToken = default)
+    public async Task<List<Appointment>> GetAppointmentsByDoctorIdAsync(string doctorId, AppointmentStatus appointmentStatus, CancellationToken cancellationToken = default)
     {
-        return await dbContext.Appointments.Where(a => a.DoctorId == doctorId && a.Status == AppointmentStatus.Pending).ToListAsync(cancellationToken);
+        return await dbContext.Appointments.Where(a => a.DoctorId == doctorId && a.Status == appointmentStatus).ToListAsync(cancellationToken);
     }
 
     public async Task<bool> AddAppointmentAsync(Appointment appointment, CancellationToken cancellationToken = default)

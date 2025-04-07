@@ -15,9 +15,9 @@ public class AppointmentService(
     IAgendaService agendaService)
     : IAppointmentService
 {
-    public async Task<List<Appointment>> GetPendingConfirmationAppointsAsync(string doctorId, CancellationToken cancellationToken = default)
+    public async Task<List<Appointment>> GetAppointmentsAsync(string doctorId, AppointmentStatus appointmentStatus, CancellationToken cancellationToken = default)
     {
-        return await appointmentRepository.GetPendingAppointmentsByDoctorIdAsync(doctorId, cancellationToken);
+        return await appointmentRepository.GetAppointmentsByDoctorIdAsync(doctorId, appointmentStatus, cancellationToken);
     }
 
     public async Task<Appointment> AddAppointmentAsync(AppointmentDto appointmentDto, CancellationToken cancellationToken = default)
