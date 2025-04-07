@@ -8,6 +8,5 @@ public record DoctorDto(
     string LastName, 
     string Email, 
     string Crm, 
-    Specialties Specialty,
-    decimal HourlyPrice
+    Specialties Specialty
     );

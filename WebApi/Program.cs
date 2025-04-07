@@ -2,6 +2,7 @@ using System.Text;
 using Application.Services.AppointmentService;
 using Application.Services.AuthServices;
 using Application.Services.DoctorServices;
+using Application.Services.UserService;
 using Domain.Interfaces;
 using HealthChecks.UI.Client;
 using Infra;
@@ -49,6 +50,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Add services to the container.
 builder.Services.AddScoped<IUserRepository, UserRepository>()
+    .AddScoped<IUserService, UserService>()
     .AddScoped<IAuthService, AuthService>()
     .AddScoped<IDoctorRepository, DoctorRepository>()
     .AddScoped<IDoctorService, DoctorService>()

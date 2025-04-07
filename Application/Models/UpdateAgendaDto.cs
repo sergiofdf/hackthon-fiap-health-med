@@ -2,10 +2,11 @@ using Domain.Enums;
 
 namespace Application.Models;
 
-public record UpdateAgendaDto(
+public record AgendaDto(
     bool Available, 
     DateTime? StartDateTime, 
-    DateTime? EndDateTime
+    DateTime? EndDateTime,
+    decimal? hourlyPrice
     );
 
 

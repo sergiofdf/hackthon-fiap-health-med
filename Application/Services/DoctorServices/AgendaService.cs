@@ -12,16 +12,19 @@ namespace Application.Services.DoctorServices;
 
 public class AgendaService(IAgendaRepository agendaRepository) : IAgendaService
 {
-    public async Task<bool> AddNewAvailableAgenda(string doctorId, DateTime startDateTime, DateTime endDateTime, CancellationToken ct = default)
+    public async Task<bool> AddNewAvailableAgenda(string doctorId, AgendaDto agendaDto, CancellationToken ct = default)
     {
-        var doctorAvaiableAgendas = await GetDoctorAvailableAgendaByTime(doctorId, startDateTime, endDateTime, ct);
+        var startDateTimeUtc = DateTime.SpecifyKind((DateTime)agendaDto.StartDateTime!, DateTimeKind.Utc);
+        var endDateTimeUtc = DateTime.SpecifyKind((DateTime)agendaDto.EndDateTime!, DateTimeKind.Utc);
+        
+        var doctorAvaiableAgendas = await GetDoctorAvailableAgendaByTime(doctorId, startDateTimeUtc, endDateTimeUtc, ct);
 
         if (doctorAvaiableAgendas.Count > 0)
         {
             Field field = new()
             {
                 Name = "startDateTime",
-                Value = startDateTime.ToString(CultureInfo.InvariantCulture),
+                Value = agendaDto.StartDateTime.ToString(),
                 ExMessage = "Horário livre já cadastrado."
             };
             List<Field> fields = new() { field };
@@ -31,10 +34,11 @@ public class AgendaService(IAgendaRepository agendaRepository) : IAgendaService
         
         var newAgenda = new Agenda
         {
-            StartTime = startDateTime,
-            EndTime = endDateTime,
+            StartTime = startDateTimeUtc,
+            EndTime = endDateTimeUtc,
             Available = true,
             DoctorId = doctorId,
+            HourlyPrice = agendaDto.hourlyPrice ?? 0,
         };
         
         var res = await agendaRepository.AddAvailableSlotAsync(newAgenda, ct);
@@ -47,7 +51,7 @@ public class AgendaService(IAgendaRepository agendaRepository) : IAgendaService
         return res;
     }
     
-    public async Task<bool> UpdateAgenda(string agendaId, UpdateAgendaDto updateAgendaDto, string userRole, string userId, CancellationToken ct = default)
+    public async Task<bool> UpdateAgenda(string agendaId, AgendaDto updateAgendaDto, string userRole, string userId, CancellationToken ct = default)
     {
         var agenda = await agendaRepository.GetAgendaById(agendaId, ct);
         
@@ -75,7 +79,8 @@ public class AgendaService(IAgendaRepository agendaRepository) : IAgendaService
             Available = updateAgendaDto.Available,
             StartTime = startDateTimeUtc,
             EndTime = endDateTimeUtc,
-            DoctorId = agenda!.DoctorId
+            DoctorId = agenda!.DoctorId,
+            HourlyPrice = updateAgendaDto.hourlyPrice ?? agenda!.HourlyPrice,
         };
         
         var res = await agendaRepository.EditSlotAsync(newAgenda, ct);
