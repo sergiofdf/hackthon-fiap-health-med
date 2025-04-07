@@ -61,11 +61,12 @@ public class AppointmentController(
     [SwaggerResponseExample(200, typeof(PendingAppointmentResponseExample))]
     #endregion
     [Authorize(Roles = "Doctor,Admin")]
-    [HttpGet("pendentes/{doctorId}")]
-    public async Task<ActionResult<IEnumerable<Appointment>>> GetPendingAppointment( [FromRoute] string doctorId,
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointments( [FromQuery] string doctorId, 
+        AppointmentStatus appointmentStatus,
         CancellationToken cancellationToken = default)
     {
-        var res = await appointmentService.GetPendingConfirmationAppointsAsync(doctorId, cancellationToken);
+        var res = await appointmentService.GetAppointmentsAsync(doctorId, appointmentStatus, cancellationToken);
         return Ok(res);
     }
     
