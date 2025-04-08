@@ -33,9 +33,9 @@ jobs:
     
       - name: Build Docker image
         run: |
-          docker build -t sergiofdf/health-api:latest .
+          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/health-api:latest .
 
       - name: Push Docker image
         run: |
-          docker push sergiofdf/health-api:latest
+          docker push ${{ vars.DOCKERHUB_USERNAME }}/health-api:latest
    
