@@ -33,7 +33,7 @@ jobs:
     
       - name: Build Docker image
         run: |
-          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/health-api:latest .
+          docker build -f ./WebApi/Dockerfile -t ${{ vars.DOCKERHUB_USERNAME }}/health-api:latest .
 
       - name: Push Docker image
         run: |
