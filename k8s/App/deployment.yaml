@@ -22,6 +22,8 @@ spec:
           - name: https
             containerPort: 8081
           env:
+          - name: KubernetesEnv
+            value: "true"
           - name: ASPNETCORE_ENVIRONMENT
             value: "Development"
           - name: ConnectionStrings__PostgresConnection
