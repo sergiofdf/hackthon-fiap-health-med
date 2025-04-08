@@ -63,7 +63,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>()
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerConfig();
+builder.Services.AddSwaggerConfig(builder.Configuration);
 builder.AddMassTransitConfig();
 
 builder.Services.AddTransient<ExceptionHandlingMiddleware>();
@@ -90,7 +90,7 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 
 app.UseHttpMetrics();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
