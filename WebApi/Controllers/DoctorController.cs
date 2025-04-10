@@ -7,12 +7,13 @@ using Domain.Enums;
 using Domain.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace WebApi.Controllers;
 
 [ApiController]
 [Route("api/medicos")]
-public class DoctorController(IAgendaService agendaService, IDoctorService doctorService) : ControllerBase
+public class DoctorController(IAgendaService agendaService, IDoctorService doctorService, IMemoryCache memoryCache) : ControllerBase
 {
     /// <summary>
     /// Consulta médicos.
@@ -36,7 +37,7 @@ public class DoctorController(IAgendaService agendaService, IDoctorService docto
     public async Task<ActionResult<IEnumerable<DoctorDto>>> GetDoctors([FromQuery] Specialties? especilidade, 
         CancellationToken cancellationToken = default)
     {
-        List<DoctorDto> res;
+        if (memoryCache.TryGetValue($"doctors-{especilidade}", out List<DoctorDto> res)) return Ok(res);
         if (especilidade != null)
         {
             if (!Enum.TryParse<Specialties>(especilidade.ToString(), true, out var specialtyEnum))
@@ -50,6 +51,8 @@ public class DoctorController(IAgendaService agendaService, IDoctorService docto
             res = await doctorService.GetAllAsync(cancellationToken); 
         }
         
+        memoryCache.Set($"doctors-{especilidade}", res, DateTimeOffset.Now.AddMinutes(5));
+
         return Ok(res);
     }
     
