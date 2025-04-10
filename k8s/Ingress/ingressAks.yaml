@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: healthapp-ingress
+  annotations: {} 
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths: 
+          - path: /
+            pathType: Prefix
+            backend:
+              service: 
+                name: health-api
+                port: 
+                  number: 8080
