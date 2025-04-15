@@ -10,6 +10,7 @@ using Infra.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 using Prometheus;
 using Prometheus.SystemMetrics;
@@ -50,6 +51,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Add services to the container.
 builder.Services.AddScoped<IUserRepository, UserRepository>()
+    .AddSingleton<IMemoryCache, MemoryCache>()
     .AddScoped<IUserService, UserService>()
     .AddScoped<IAuthService, AuthService>()
     .AddScoped<IDoctorRepository, DoctorRepository>()
@@ -63,7 +65,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>()
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerConfig();
+builder.Services.AddSwaggerConfig(builder.Configuration);
 builder.AddMassTransitConfig();
 
 builder.Services.AddTransient<ExceptionHandlingMiddleware>();
@@ -90,7 +92,7 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 
 app.UseHttpMetrics();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 

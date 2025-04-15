@@ -8,7 +8,7 @@ namespace WebApi.Configuration
 {
     public static class SwaggerConfig
     {
-        public static IServiceCollection AddSwaggerConfig(this IServiceCollection services)
+        public static IServiceCollection AddSwaggerConfig(this IServiceCollection services, IConfiguration configuration)
         {
 
             services.AddSwaggerGen(options =>
@@ -25,6 +25,13 @@ namespace WebApi.Configuration
                         Email = "suporte@hackathon.com.br"
                     }
                 });
+                
+                var kubernetesEnv = configuration["KubernetesEnv"] == "true";
+
+                if (kubernetesEnv)
+                {
+                    options.AddServer(new OpenApiServer { Url = "/health-api" });
+                }
                 
                 // Configura o Swagger para exibir enums como string
                 options.MapType<EProfile>(() => new OpenApiSchema
