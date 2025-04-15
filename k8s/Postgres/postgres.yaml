@@ -6,7 +6,7 @@ spec:
   selector:
     matchLabels:
       app: postgres
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       labels:
@@ -43,10 +43,10 @@ spec:
           resources:
             limits:
               memory: "1024Mi"
-              cpu: "2000m"
+              cpu: "1500m"
             requests:
               memory: "512Mi"
-              cpu: "1500m"
+              cpu: "1000m"
       volumes:
         - name: postgresdb
           persistentVolumeClaim:
