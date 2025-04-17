@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using Application.Models;
 using Application.Services.DoctorServices;
+using Application.Services.EmailService;
 using Application.Services.UserService;
 using Domain.Dto;
 using Domain.Enums;
@@ -13,7 +14,7 @@ namespace WebApi.Controllers;
 
 [ApiController]
 [Route("api/usuarios")]
-public class UserController(IUserService userService) : ControllerBase
+public class UserController(IUserService userService, IEmailService emailService) : ControllerBase
 {
     /// <summary>
     /// Lista usuários.

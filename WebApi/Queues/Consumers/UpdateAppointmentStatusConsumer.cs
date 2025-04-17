@@ -1,5 +1,6 @@
 using Application.Models;
 using Application.Services.AppointmentService;
+using Application.Services.EmailService;
 using Domain.Enums;
 using Infra;
 using MassTransit;
@@ -11,11 +12,13 @@ public class UpdateAppointmentStatusConsumer : IConsumer<UpdateAppointmentStatus
 {
     private readonly ILogger<UpdateAppointmentStatusConsumer> _logger;
     private readonly IAppointmentService _appointmentService;
-
-    public UpdateAppointmentStatusConsumer(ILogger<UpdateAppointmentStatusConsumer> logger, IAppointmentService appointmentService)
+    private readonly IEmailService _emailService;
+    
+    public UpdateAppointmentStatusConsumer(ILogger<UpdateAppointmentStatusConsumer> logger, IAppointmentService appointmentService, IEmailService emailService)
     {
         _logger = logger;
         _appointmentService = appointmentService;
+        _emailService = emailService;
     }
 
     public async Task Consume(ConsumeContext<UpdateAppointmentStatusMessage> context)
@@ -30,6 +33,12 @@ public class UpdateAppointmentStatusConsumer : IConsumer<UpdateAppointmentStatus
             };
             
             var res = await _appointmentService.UpdateAppointmentConfirmationAsync(updateAppointmentDto);
+
+            if (res.Status == AppointmentStatus.ApprovedByDoctor)
+            {
+               await _emailService.SendEmailAsync("RM357298@fiap.com.br", "Consulta Aprovada",
+                    $"Sua consulta foi aprovada para o dia {res.StartTime:dd/MM/yyyy HH:mm}.");
+            }
 
             _logger.LogInformation(@"Status consulta atualizado.
 Consulta: {@consulta}
