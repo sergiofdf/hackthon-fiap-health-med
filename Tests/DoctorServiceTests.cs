@@ -44,11 +44,11 @@ public class DoctorServiceTests
         };
 
         _doctorRepositoryMock
-            .Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetAllAsync(1,10, It.IsAny<CancellationToken>()))
             .ReturnsAsync(doctors);
 
         // Act
-        var result = await _service.GetAllAsync();
+        var result = await _service.GetAllAsync(1, 10);
 
         // Assert
         Assert.Equal(2, result.Count);
