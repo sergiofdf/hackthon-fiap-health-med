@@ -7,9 +7,9 @@ namespace Application.Services.DoctorServices;
 
 public class DoctorService(IDoctorRepository doctorRepository) : IDoctorService
 {
-    public async Task<List<DoctorDto>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<DoctorDto>> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default)
     {
-        var doctorsData = await doctorRepository.GetAllAsync(cancellationToken);
+        var doctorsData = await doctorRepository.GetAllAsync(page, pageSize, cancellationToken);
 
         return doctorsData.Select(doctor => new DoctorDto(doctor.Id, doctor.Name, doctor.LastName, doctor.Email, doctor.Crm, doctor.Specialty)).ToList();
     }

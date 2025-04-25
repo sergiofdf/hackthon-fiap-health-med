@@ -22,6 +22,7 @@ public class HealthCheckController(HealthCheckService healthCheckService) : Cont
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
     #endregion
+    [ApiExplorerSettings(IgnoreApi = true)]
     [HttpGet]
     public async Task<IActionResult> GetHealthCheck()
     {

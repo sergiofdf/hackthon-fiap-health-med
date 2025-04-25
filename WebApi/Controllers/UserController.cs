@@ -9,6 +9,7 @@ using Domain.Enums;
 using Domain.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace WebApi.Controllers;
 
@@ -21,6 +22,7 @@ public class UserController(IUserService userService, IEmailService emailService
     /// </summary>
     /// <remarks>
     /// <p>A consulta permite listar todos os usuários cadastrados.</p>
+    /// <p>Este endpoint possui paginação. Se não forem informados os parametros de página e tamanho da página, será considerado por defualt 1 e 5 respectivamente.</p>
     /// </remarks>
     /// <returns>Retorna usuarios.</returns>
     /// <response code="200">Usuarios disponíveis</response>
@@ -36,9 +38,13 @@ public class UserController(IUserService userService, IEmailService emailService
     #endregion
     [Authorize]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<UserResponseDto>>> GetUsers(CancellationToken cancellationToken = default)
+    public async Task<ActionResult<IEnumerable<UserResponseDto>>> GetUsers(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 5,
+        CancellationToken cancellationToken = default)
     {
-        var res = await userService.GetAllUsersAsync(cancellationToken); 
+        var res = await userService.GetAllUsersAsync(page, pageSize, cancellationToken); 
+        
         return Ok(res);
     }
     
