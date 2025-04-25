@@ -3,6 +3,7 @@ using Application.Services.AuthServices;
 using Domain.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Swashbuckle.AspNetCore.Filters;
 using WebApi.Validation;
 
@@ -10,7 +11,7 @@ namespace WebApi.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public class AuthController(IAuthService authService) : ControllerBase
+public class AuthController(IAuthService authService, IMemoryCache memoryCache) : ControllerBase
 {
     /// <summary>
     /// Registra um novo usuário.
@@ -43,6 +44,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         NewUserValidator validator = new();
         validator.IsValid(userDto);
         await authService.RegisterUserAsync(userDto, ct);
+        memoryCache.Remove("doctors--1-10");
         return CreatedAtAction(nameof(Register), new { email = userDto.Email });
     }
 

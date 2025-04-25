@@ -5,9 +5,9 @@ namespace Application.Services.UserService;
 
 public class UserService(IUserRepository userRepository) : IUserService
 {
-    public async Task<List<UserResponseDto>> GetAllUsersAsync(CancellationToken ct)
+    public async Task<List<UserResponseDto>> GetAllUsersAsync(int page, int pageSize, CancellationToken ct)
     {
-        var users = await userRepository.GetAllAsync(ct);
+        var users = await userRepository.GetAllAsync(page, pageSize, ct);
         var listUsers = new List<UserResponseDto>();
         users?.ForEach(u =>
         {

@@ -8,9 +8,13 @@ namespace Infra.Repository;
 
 public class DoctorRepository(AppDbContext dbContext) : IDoctorRepository
 {
-    public async Task<List<Doctor>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<Doctor>> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default)
     {
-        return await dbContext.Doctors.ToListAsync(cancellationToken);
+        return await dbContext.Doctors
+            .OrderBy(d => d.Name)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<List<Doctor>> GetBySpecialityAsync(Specialties specialty, CancellationToken cancellationToken = default)

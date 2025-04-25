@@ -31,9 +31,13 @@ public class UserRepository(AppDbContext dbContext) : IUserRepository
         return true;
     }
 
-    public async Task<List<User>?> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<User>?> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default)
     {
-        return await dbContext.Users.ToListAsync(cancellationToken);
+        return await dbContext.Users
+            .OrderBy(u => u.Name)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
