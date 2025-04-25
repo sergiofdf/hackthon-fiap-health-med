@@ -20,6 +20,7 @@ public class DoctorController(IAgendaService agendaService, IDoctorService docto
     /// </summary>
     /// <remarks>
     /// <p>A consulta permite um filtro por especilidade via queryParam.</p>
+    /// <p>Este endpoint possui paginação. Se não forem informados os parametros de página e tamanho da página, será considerado por defualt 1 e 10 respectivamente.</p>
     /// </remarks>
     /// <returns>Retorna medicos.</returns>
     /// <response code="200">Médicos disponíveis</response>
@@ -34,10 +35,12 @@ public class DoctorController(IAgendaService agendaService, IDoctorService docto
     #endregion
     [Authorize]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<DoctorDto>>> GetDoctors([FromQuery] Specialties? especilidade, 
+    public async Task<ActionResult<IEnumerable<DoctorDto>>> GetDoctors([FromQuery] Specialties? especilidade,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
         CancellationToken cancellationToken = default)
     {
-        if (memoryCache.TryGetValue($"doctors-{especilidade}", out List<DoctorDto> res)) return Ok(res);
+        if (memoryCache.TryGetValue($"doctors-{especilidade}-{page}-{pageSize}", out List<DoctorDto> res)) return Ok(res);
         if (especilidade != null)
         {
             if (!Enum.TryParse<Specialties>(especilidade.ToString(), true, out var specialtyEnum))
@@ -48,10 +51,10 @@ public class DoctorController(IAgendaService agendaService, IDoctorService docto
         }
         else
         {
-            res = await doctorService.GetAllAsync(cancellationToken); 
+            res = await doctorService.GetAllAsync(page, pageSize, cancellationToken); 
         }
         
-        memoryCache.Set($"doctors-{especilidade}", res, DateTimeOffset.Now.AddMinutes(5));
+        memoryCache.Set($"doctors-{especilidade}-{page}-{pageSize}", res, DateTimeOffset.Now.AddMinutes(5));
 
         return Ok(res);
     }
