@@ -98,11 +98,13 @@ app.UseHttpMetrics();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-app.UseAuthorization();
-
 app.MapMetrics();
 
 app.MapControllers();
+
+app.UseAuthentication();
+
+app.UseAuthorization();
 
 app.Run();
 
