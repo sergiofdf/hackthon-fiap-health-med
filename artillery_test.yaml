@@ -2,7 +2,7 @@ config:
   # This is a test server run by team Artillery
   # It's designed to be highly scalable
   # target: http://localhost:5268/api
-  target: http://128.85.255.11
+  target: http://135.224.220.122
   phases:
     - duration: 10
       arrivalRate: 10
@@ -23,5 +23,5 @@ scenarios:
               # url: '/health-api/api/medicos'
               url: '/api/medicos'
               headers:
-                Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3YzNmMDJhYS00MTU1LTRlZDEtYjY2Ny02ZmI2MTEyZGQ0NjgiLCJlbWFpbCI6InNlcmdpby5kaWFzQGVtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiYXVkIjoiSGFja2F0aG9uRnJvbnQiLCJpc3MiOiJIYWNrYXRob25CYWNrIiwiZXhwIjoxNzQ0NzY3Njg2LCJpYXQiOjE3NDQ2Nzc2ODYsIm5iZiI6MTc0NDY3NzY4Nn0.3LVKbmBG1zLhonhbGDOuJfhVag7mtgQBefu6gD9AEz0'
+                Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3YzNmMDJhYS00MTU1LTRlZDEtYjY2Ny02ZmI2MTEyZGQ0NjgiLCJlbWFpbCI6InNlcmdpby5kaWFzQGVtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiYXVkIjoiSGFja2F0aG9uRnJvbnQiLCJpc3MiOiJIYWNrYXRob25CYWNrIiwiZXhwIjoxNzQ2MTU0MzMwLCJpYXQiOjE3NDYwNjQzMzAsIm5iZiI6MTc0NjA2NDMzMH0.eXbz2EzmKQeqDxv_6zdNTspzMJZyaoKTAVSgrIoYduo'
         count: 10
