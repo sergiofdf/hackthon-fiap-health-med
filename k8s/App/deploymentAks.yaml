@@ -50,7 +50,12 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: secrets-config
-                key: jwtkey      
+                key: jwtkey
+          - name: SmtpCredentials__pw
+            valueFrom:
+              secretKeyRef:
+                name: secrets-config
+                key: smtppw
           resources:
             limits:
               memory: "1024Mi"

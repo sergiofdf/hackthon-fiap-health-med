@@ -45,7 +45,7 @@ public class AppointmentController(
     }
     
     /// <summary>
-    /// Lista consultas pendentes de aprovação de um médico.
+    /// Lista consultas do médico, com possibilidade de filtro por status.
     /// </summary>
     /// <returns>true</returns>
     /// <response code="200">Consultas para aprovação.</response>

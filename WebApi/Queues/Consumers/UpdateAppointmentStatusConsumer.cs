@@ -40,6 +40,12 @@ public class UpdateAppointmentStatusConsumer : IConsumer<UpdateAppointmentStatus
                     $"Sua consulta foi aprovada para o dia {res.StartTime:dd/MM/yyyy HH:mm}.");
             }
 
+            if (res.Status == AppointmentStatus.RejectedByDoctor)
+            {
+                await _emailService.SendEmailAsync("RM357298@fiap.com.br", "Consulta Recusada",
+                    $"Sua consulta foi recusada para o dia {res.StartTime:dd/MM/yyyy HH:mm}.");
+            }
+
             _logger.LogInformation(@"Status consulta atualizado.
 Consulta: {@consulta}
 Status: {@status}", context.Message.AppointmentId, res.Status);
