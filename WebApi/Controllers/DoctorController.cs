@@ -16,7 +16,7 @@ namespace WebApi.Controllers;
 public class DoctorController(IAgendaService agendaService, IDoctorService doctorService, IMemoryCache memoryCache) : ControllerBase
 {
     /// <summary>
-    /// Consulta médicos.
+    /// Consulta de médicos com filtro por especialidade e paginacao.
     /// </summary>
     /// <remarks>
     /// <p>A consulta permite um filtro por especilidade via queryParam.</p>
